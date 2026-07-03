@@ -7,8 +7,7 @@ require_once 'includes/header.php';
     <p>בחר קטגוריה והמשך לחיפוש מותאם.</p>
 
     <div class="home-actions">
-        <a href="/vehicle/add.php" class="home-main-btn">פרסם מודעת רכב</a>
-        <a href="/vehicle/index.php" class="home-secondary-btn">צפה ברכבים</a>
+       <a href="/post_ad.php" class="home-main-btn">פרסם מודעה</a>
     </div>
 
     <div class="home-category-grid">

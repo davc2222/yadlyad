@@ -2,9 +2,12 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+$isLoggedIn = !empty($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <title>יד ליד - לוח מודעות יד שנייה</title>
@@ -12,44 +15,72 @@ if (session_status() === PHP_SESSION_NONE) {
 
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/responsive.css">
-    <link rel="stylesheet" href="/css/site_layout.css">
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 
 <body>
 
-<header class="site-header">
-    <div class="header-inner">
+    <header class="yl-header">
 
-        <a href="/" class="logo">
-            יד<span>ליד</span>
-        </a>
+        <div class="yl-header-top">
 
-        <nav class="main-nav">
-            <a href="/">ראשי</a>
-            <a href="/vehicle/index.php">רכבים</a>
-            <a href="/vehicle/add.php">פרסום רכב</a>
-            <a href="/search.php">חיפוש כללי</a>
-            <a href="/contact.php">צור קשר</a>
-        </nav>
+            <a href="/" class="yl-logo">
+                <span class="yl-logo-main">יד<span>ליד</span></span>
+                <small>לוח מודעות יד שנייה</small>
+            </a>
 
-        <div class="header-actions">
-            <?php if (!empty($_SESSION['user_id'])): ?>
-                <a href="/profile.php" class="btn-login">איזור אישי</a>
-                <a href="/logout.php" class="btn-post">התנתק</a>
-            <?php else: ?>
-                <a href="/login.php" class="btn-login">התחברות</a>
-                <a href="/vehicle/add.php" class="btn-post">פרסם מודעה</a>
-            <?php endif; ?>
+            <form class="yl-search" action="/search.php" method="get">
+                <input type="text" name="q" placeholder="מה אתם מחפשים?">
+                <button type="submit">חפש</button>
+            </form>
+
+            <div class="yl-actions">
+                <?php if ($isLoggedIn): ?>
+                    <a href="/profile.php" class="yl-login-btn">אזור אישי</a>
+                    <a href="/logout.php" class="yl-login-btn">התנתק</a>
+                <?php else: ?>
+                    <a href="/login.php" class="yl-login-btn">התחברות</a>
+                <?php endif; ?>
+
+                <a href="/post_ad.php" class="yl-post-btn">+ פרסם מודעה</a>
+            </div>
+
         </div>
 
-    </div>
-</header>
+        <nav class="yl-category-nav">
 
-<nav class="category-strip">
-    <a href="/vehicle/index.php">🚗 רכב</a>
-    <a href="/search.php?category=realestate">🏠 נדל״ן</a>
-    <a href="/search.php?category=secondhand">🛋️ יד שנייה</a>
-    <a href="/search.php?category=jobs">💼 דרושים</a>
+    <a href="/vehicle/index.php" class="yl-category-item">
+        <span class="yl-category-icon car">
+    <i class="fa-solid fa-car"></i>
+</span>
+        <span>רכב</span>
+    </a>
+
+    <a href="/search.php?category=realestate" class="yl-category-item">
+       <span class="yl-category-icon home">
+    <i class="fa-solid fa-house"></i>
+</span>
+        <span>נדל״ן</span>
+    </a>
+
+    <a href="/search.php?category=secondhand" class="yl-category-item">
+    <span class="yl-category-icon second">
+    <i class="fa-solid fa-tags"></i>
+</span>
+        <span>יד שנייה</span>
+    </a>
+
+    <a href="/search.php?category=jobs" class="yl-category-item">
+     <span class="yl-category-icon jobs">
+    <i class="fa-solid fa-briefcase"></i>
+</span>
+        <span>דרושים</span>
+    </a>
+
 </nav>
+        </nav>
 
-<main class="site-main">
+    </header>
+
+    <main class="site-main">

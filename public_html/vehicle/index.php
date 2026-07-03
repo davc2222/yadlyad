@@ -244,5 +244,54 @@ $ads = $stmt->fetchAll(PDO::FETCH_ASSOC);
         });
     });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('.vehicle-search-bar');
+    const grid = document.querySelector('.vehicle-grid');
+    const countText = document.querySelector('.vehicle-list-header p');
 
+    if (!form || !grid) return;
+
+    let timer = null;
+
+    function runSearch() {
+        const params = new URLSearchParams(new FormData(form));
+        grid.classList.add('is-loading');
+
+        fetch('/vehicle/ajax/search.php?' + params.toString(), {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(res => res.text())
+        .then(html => {
+            grid.innerHTML = html;
+            const cards = grid.querySelectorAll('.vehicle-card').length;
+            if (countText) countText.textContent = 'נמצאו ' + cards + ' מודעות';
+        })
+        .catch(() => {
+            grid.innerHTML = '<div class="empty-state">שגיאה בטעינת התוצאות.</div>';
+        })
+        .finally(() => {
+            grid.classList.remove('is-loading');
+        });
+    }
+
+    form.querySelectorAll('input, select').forEach(function (el) {
+        el.addEventListener('input', function () {
+            clearTimeout(timer);
+            timer = setTimeout(runSearch, 350);
+        });
+
+        el.addEventListener('change', function () {
+            clearTimeout(timer);
+            timer = setTimeout(runSearch, 150);
+        });
+    });
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        clearTimeout(timer);
+        runSearch();
+    });
+});
+</script>
 <?php require_once '../includes/footer.php'; ?>

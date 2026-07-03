@@ -404,3 +404,10 @@
         width: 100%;
     }
 }
+
+
+.vehicle-grid.is-loading {
+    opacity: .45;
+    pointer-events: none;
+    transition: opacity .15s ease;
+}

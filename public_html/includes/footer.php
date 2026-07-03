@@ -8,14 +8,28 @@
             <p>לוח מודעות פשוט, נקי ונוח לקנייה ומכירה.</p>
         </div>
 
-        <div class="footer-links">
-            <a href="/">ראשי</a>
+        <div class="footer-col">
+            <h4>קטגוריות</h4>
             <a href="/vehicle/index.php">רכב</a>
-            <a href="/vehicle/add.php">פרסום רכב</a>
             <a href="/search.php?category=realestate">נדל״ן</a>
             <a href="/search.php?category=secondhand">יד שנייה</a>
             <a href="/search.php?category=jobs">דרושים</a>
+        </div>
+
+        <div class="footer-col">
+            <h4>מידע</h4>
+            <a href="/about.php">אודות</a>
             <a href="/contact.php">צור קשר</a>
+            <a href="/terms.php">תקנון</a>
+            <a href="/privacy.php">פרטיות</a>
+        </div>
+
+        <div class="footer-col">
+            <h4>איזור אישי</h4>
+            <a href="/login.php">התחברות</a>
+            <a href="/register.php">הרשמה</a>
+            <a href="/my_ads.php">המודעות שלי</a>
+            <a href="/post_ad.php" class="footer-post-btn">פרסם מודעה</a>
         </div>
 
     </div>
