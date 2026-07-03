@@ -1,0 +1,26 @@
+<aside class="admin-sidebar">
+
+    <div class="admin-logo">
+        יד ליד
+    </div>
+
+    <nav class="admin-menu">
+        <a href="/admin/index.php">🏠 ראשי</a>
+        <a href="/admin/categories.php">📂 קטגוריות</a>
+        <a href="/admin/ads.php">📢 מודעות</a>
+        <a href="/admin/users.php">👥 משתמשים</a>
+        <a href="/admin/reports.php">📩 פניות</a>
+        <a href="/admin/settings.php">⚙️ הגדרות</a>
+        <a href="/admin/index.php?logout=1">🚪 יציאה</a>
+    </nav>
+
+</aside>
+
+<main class="admin-main">
+
+    <div class="admin-topbar">
+        <div class="admin-title">מערכת ניהול - יד ליד</div>
+        <div class="admin-user">מנהל</div>
+    </div>
+
+    <div class="admin-content">

@@ -1,19 +1,43 @@
+<?php
+require_once 'includes/header.php';
+?>
 
+<section class="home-hero">
+    <h1>מה מחפשים היום?</h1>
+    <p>בחר קטגוריה והמשך לחיפוש מותאם.</p>
 
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
+    <div class="home-actions">
+        <a href="/vehicle/add.php" class="home-main-btn">פרסם מודעת רכב</a>
+        <a href="/vehicle/index.php" class="home-secondary-btn">צפה ברכבים</a>
+    </div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>יד ליד - לוח יד שנייה</title>
-</head>
+    <div class="home-category-grid">
 
-<body>
+        <a href="/vehicle/index.php" class="home-category-card">
+            <div class="cat-icon">🚗</div>
+            <h2>רכב</h2>
+            <span>מכוניות, אופנועים, מסחריות ומשאיות</span>
+        </a>
 
-    <h1>ברוכים הבאים ליד ליד</h1>
-    <p>האתר נמצא בבנייה.</p>
+        <a href="/search.php?category=realestate" class="home-category-card">
+            <div class="cat-icon">🏠</div>
+            <h2>נדל״ן</h2>
+            <span>דירות, בתים, משרדים ונכסים</span>
+        </a>
 
-</body>
+        <a href="/search.php?category=secondhand" class="home-category-card">
+            <div class="cat-icon">🛋️</div>
+            <h2>יד שנייה</h2>
+            <span>ריהוט, חשמל, מחשבים וסלולר</span>
+        </a>
 
-</html>
+        <a href="/search.php?category=jobs" class="home-category-card">
+            <div class="cat-icon">💼</div>
+            <h2>דרושים</h2>
+            <span>משרות, הייטק, שירות ומכירות</span>
+        </a>
+
+    </div>
+</section>
+
+<?php require_once 'includes/footer.php'; ?>

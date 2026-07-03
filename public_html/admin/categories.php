@@ -1,102 +1,112 @@
 <?php
-session_start();
-
-if (empty($_SESSION['admin_logged_in'])) {
-    header('Location: index.php');
-    exit;
-}
-
 require_once '../includes/db.php';
+require_once '../includes/admin_header.php';
+require_once '../includes/admin_sidebar.php';
 
 $stmt = $pdo->query("
     SELECT id, parent_id, name, sort_order, is_active
     FROM categories
-    ORDER BY parent_id IS NOT NULL,
-             COALESCE(parent_id,id),
-             sort_order,
-             name
+    ORDER BY 
+        COALESCE(parent_id, id),
+        parent_id IS NOT NULL,
+        sort_order,
+        name
 ");
 
-$categories = $stmt->fetchAll();
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$main_categories = [];
+$children = [];
+
+foreach ($rows as $row) {
+    if ($row['parent_id'] === null) {
+        $main_categories[] = $row;
+    } else {
+        $children[$row['parent_id']][] = $row;
+    }
+}
 ?>
 
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
+<h1 class="page-title">ניהול קטגוריות</h1>
 
-<head>
-    <meta charset="UTF-8">
-    <title>ניהול קטגוריות</title>
+<div class="card">
+    <a href="javascript:void(0)" onclick="openCategoryModal()" class="btn btn-green">➕ הוסף קטגוריה ראשית</a>
+</div>
 
-    <style>
-        body {
-            font-family: Arial;
-            direction: rtl;
-            margin: 30px;
-        }
+<?php foreach ($main_categories as $cat): ?>
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
+    <div class="category-box">
 
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 8px;
-        }
+        <div class="category-main">
 
-        th {
-            background: #eee;
-        }
+            <div>
+                <span class="category-name">📁 <?= htmlspecialchars($cat['name']) ?></span>
+                <span class="muted">ID: <?= (int) $cat['id'] ?></span>
+            </div>
 
-        .child {
-            padding-right: 35px;
-            color: #444;
-        }
-    </style>
-</head>
+            <div class="actions">
+                <a href="javascript:void(0)" onclick="openCategoryModal(<?= $cat['id'] ?>)"
+                    class="btn btn-small btn-green">➕ תת קטגוריה</a>
+                <a href="javascript:void(0)" onclick="openCategoryModal(
+       <?= (int) $cat['id'] ?>,
+                   <?= (int) $sub['id'] ?>,
+                   '<?= htmlspecialchars($sub['name'], ENT_QUOTES) ?>',
+                   <?= (int) $sub['sort_order'] ?>,
+                   <?= (int) $sub['is_active'] ?>
+               )" class="btn btn-small btn-orange">✏️ ערוך</a>
+            <?php // מחיקת קטגוריה ראשית - יתווסף בהמשך ?>
+            </div>
 
-<body>
+        </div>
 
-    <h2>ניהול קטגוריות</h2>
+        <div class="category-children">
 
-    <table>
+            <?php if (!empty($children[$cat['id']])): ?>
 
-        <tr>
-            <th>ID</th>
-            <th>שם</th>
-            <th>סוג</th>
-            <th>פעיל</th>
-        </tr>
+                <?php foreach ($children[$cat['id']] as $sub): ?>
 
-        <?php foreach ($categories as $row): ?>
+                    <div class="category-child">
 
-            <tr>
+                        <div>
+                            └── <?= htmlspecialchars($sub['name']) ?>
+                            <span class="muted">ID: <?= (int) $sub['id'] ?></span>
 
-                <td>
-                    <?= $row['id'] ?>
-                </td>
+                            <?php if ($sub['is_active']): ?>
+                                <span class="status-on">פעיל</span>
+                            <?php else: ?>
+                                <span class="status-off">כבוי</span>
+                            <?php endif; ?>
+                        </div>
 
-                <td class="<?= $row['parent_id'] ? 'child' : '' ?>">
-                    <?= htmlspecialchars($row['name']) ?>
-                </td>
+                        <div class="actions">
+                            <a href="javascript:void(0)" onclick="openCategoryModal(
+       '',
+       <?= (int) $cat['id'] ?>,
+                                   '<?= htmlspecialchars($cat['name'], ENT_QUOTES) ?>',
+                                   <?= (int) $cat['sort_order'] ?>,
+                                   <?= (int) $cat['is_active'] ?>
+                               )" class="btn btn-small btn-orange">✏️ ערוך</a>
+                            <a href="#" class="btn btn-small btn-red">🗑️ מחק</a>
+                        </div>
 
-                <td>
-                    <?= $row['parent_id'] ? 'תת קטגוריה' : 'קטגוריה ראשית' ?>
-                </td>
+                    </div>
 
-                <td>
-                    <?= $row['is_active'] ? '✔' : '✖' ?>
-                </td>
+                <?php endforeach; ?>
 
-            </tr>
+            <?php else: ?>
 
-        <?php endforeach; ?>
+                <div class="empty-row">אין תתי קטגוריות</div>
 
-    </table>
+            <?php endif; ?>
 
-    <p><a href="index.php">חזרה לפאנל</a></p>
+        </div>
 
-</body>
+    </div>
 
-</html>
+<?php endforeach; ?>
+
+
+<?php require_once 'category_modal.php'; ?>
+<script src="js/categories.js"></script>
+<?php require_once '../includes/admin_footer.php'; ?>
+?>

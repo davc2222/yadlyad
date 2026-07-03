@@ -1,0 +1,225 @@
+.vehicle-form-page {
+    direction: rtl;
+    max-width: 1200px;
+    margin: 35px auto;
+    padding: 30px;
+    background: #f5f7fa;
+}
+
+.vehicle-form-page h1 {
+    text-align: center;
+    margin-bottom: 35px;
+    color: #123b7a;
+}
+
+.vehicle-form {
+    background: #fff;
+    padding: 35px;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.vehicle-form h2 {
+    color: #123b7a;
+    font-size: 24px;
+    margin: 35px 0 22px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 28px;
+}
+
+.form-grid>div {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-grid label,
+.vehicle-form label {
+    font-weight: 700;
+    color: #102542;
+    margin-bottom: 8px;
+}
+
+.form-grid input,
+.form-grid select,
+.vehicle-form textarea {
+    width: 100%;
+    height: 46px;
+    padding: 0 12px;
+    border: 1px solid #cfd6df;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background: #fff;
+}
+
+.vehicle-form textarea {
+    height: auto;
+    min-height: 150px;
+    padding: 12px;
+    resize: vertical;
+}
+
+.vehicle-form input[type="checkbox"] {
+    width: auto;
+    height: auto;
+    margin-left: 6px;
+}
+
+.btn-main {
+    display: block;
+    width: 240px;
+    margin: 35px auto 0;
+    padding: 14px;
+    border: none;
+    border-radius: 999px;
+    background: #1f6fd5;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-main:hover {
+    background: #1557aa;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+@media (max-width: 800px) {
+    .vehicle-form-page {
+        padding: 12px;
+    }
+
+    .vehicle-form {
+        padding: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-main {
+        width: 100%;
+    }
+}
+
+/* ---------- Sections ---------- */
+
+.vehicle-form h2 {
+    background: #fff;
+    padding: 18px 25px;
+    margin: 35px 0 20px;
+    border-radius: 10px 10px 0 0;
+    border-bottom: 3px solid #1f6fd5;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+}
+
+.form-grid {
+    background: #fff;
+    padding: 25px;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+    margin-bottom: 30px;
+}
+
+/* ---------- Inputs ---------- */
+
+.form-grid input,
+.form-grid select,
+textarea {
+    transition: .25s;
+}
+
+.form-grid input:hover,
+.form-grid select:hover,
+textarea:hover {
+    border-color: #1f6fd5;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+textarea:focus {
+
+    outline: none;
+    border-color: #1f6fd5;
+    box-shadow: 0 0 0 3px rgba(31, 111, 213, .15);
+
+}
+
+/* ---------- Select ---------- */
+
+select {
+    cursor: pointer;
+}
+
+/* ---------- Checkboxes ---------- */
+
+.features-grid {
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+
+}
+
+.features-grid label {
+
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: .2s;
+
+}
+
+.features-grid label:hover {
+
+    background: #eef5ff;
+    border-color: #1f6fd5;
+
+}
+
+/* ---------- Upload ---------- */
+
+.upload-box {
+
+    border: 2px dashed #1f6fd5;
+    border-radius: 12px;
+    padding: 35px;
+    text-align: center;
+    background: #fafcff;
+
+}
+
+.upload-box:hover {
+
+    background: #eef5ff;
+
+}
+
+/* ---------- Button ---------- */
+
+.btn-main {
+
+    font-size: 18px;
+    height: 56px;
+    width: 280px;
+    border-radius: 40px;
+
+}
