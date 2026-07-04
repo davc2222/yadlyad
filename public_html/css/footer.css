@@ -1,70 +1,64 @@
-.site-footer{
-    background:#0f172a;
-    color:#e2e8f0;
-    margin-top:40px;
+/* ===== Footer ===== */
+
+.site-footer {
+    background: #ffffff;
+    border-top: 1px solid #dbe4ef;
+    margin-top: 40px;
 }
 
-.footer-inner{
-    max-width:1300px;
-    margin:0 auto;
-    padding:42px 22px;
-    display:grid;
-    grid-template-columns:1.5fr 1fr 1fr 1fr;
-    gap:34px;
+.footer-inner {
+    max-width: 1200px;
+    margin: auto;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 14px 20px;
 }
 
-.footer-brand h3{
-    margin:0 0 10px;
-    font-size:30px;
-    font-weight:900;
-    color:#fff;
+.footer-brand h3 {
+    margin: 0;
+    font-size: 22px;
+    color: #2563eb;
 }
 
-.footer-brand h3 span{
-    color:#0875e1;
+.footer-brand p {
+    display: none;
 }
 
-.footer-brand p{
-    margin:0;
-    color:#cbd5e1;
-    line-height:1.8;
+.footer-col {
+    display: flex;
+    gap: 18px;
+    align-items: center;
 }
 
-.footer-col h4{
-    margin:0 0 14px;
-    color:#fff;
-    font-size:18px;
-    font-weight:900;
+.footer-col h4 {
+    display: none;
 }
 
-.footer-col a{
-    display:block;
-    color:#cbd5e1;
-    text-decoration:none;
-    margin-bottom:10px;
-    font-weight:700;
+.footer-col a {
+    margin: 0;
+    color: #64748b;
+    text-decoration: none;
+    font-size: 14px;
 }
 
-.footer-col a:hover{
-    color:#fff;
+.footer-col a:hover {
+    color: #2563eb;
 }
 
-.footer-post-btn{
-    display:inline-flex !important;
-    align-items:center;
-    justify-content:center;
-    height:42px;
-    padding:0 16px;
-    margin-top:8px;
-    border-radius:10px;
-    background:#0875e1;
-    color:#fff !important;
+.footer-post-btn {
+    background: #2563eb;
+    color: #fff !important;
+    padding: 8px 14px;
+    border-radius: 8px;
 }
 
-.footer-bottom{
-    border-top:1px solid rgba(255,255,255,.10);
-    text-align:center;
-    padding:16px;
-    color:#94a3b8;
-    font-size:14px;
+.footer-bottom {
+    border-top: 1px solid #eef2f7;
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+    color: #94a3b8;
 }

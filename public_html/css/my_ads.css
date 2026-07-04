@@ -1,0 +1,228 @@
+.my-ads-page {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.my-ads-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.my-ads-header h1 {
+    margin: 0;
+    font-size: 34px;
+    color: #102542;
+}
+
+.my-ads-header p {
+    margin: 6px 0 0;
+    color: #64748b;
+}
+
+.my-ads-post-btn {
+    background: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-weight: 900;
+}
+
+.my-ads-empty {
+    background: #fff;
+    border: 1px solid #dbe4ef;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
+}
+
+.my-ads-empty h2 {
+    margin: 0 0 8px;
+}
+
+.my-ads-empty p {
+    color: #64748b;
+}
+
+.my-ads-empty a {
+    display: inline-flex;
+    margin-top: 14px;
+    background: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-weight: 900;
+}
+
+.my-ads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.my-ad-row {
+    background: #fff;
+    border: 1px solid #dbe4ef;
+    border-radius: 18px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 18px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .05);
+}
+
+.my-ad-image {
+    width: 170px;
+    height: 125px;
+    background: #eef2f7;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.my-ad-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.my-ad-no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 46px;
+}
+
+.my-ad-content {
+    min-width: 0;
+}
+
+.my-ad-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.my-ad-top h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #0f172a;
+}
+
+.my-ad-top h2 span {
+    color: #64748b;
+    font-size: 18px;
+    margin-right: 6px;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.status-badge.active {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.pending {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.status-badge.inactive {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.my-ad-title {
+    margin-top: 8px;
+    color: #334155;
+    font-weight: 700;
+}
+
+.my-ad-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+    color: #475569;
+}
+
+.my-ad-meta span {
+    background: #f8fafc;
+    border: 1px solid #e5eaf1;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.my-ad-date {
+    margin-top: 10px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.my-ad-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.my-ad-actions a {
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #0f172a;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 14px;
+}
+
+.my-ad-actions a:hover {
+    background: #e2e8f0;
+}
+
+.my-ad-actions .danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+@media(max-width:700px) {
+    .my-ads-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .my-ad-row {
+        grid-template-columns: 1fr;
+    }
+
+    .my-ad-image {
+        width: 100%;
+        height: 210px;
+    }
+
+    .my-ad-top {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

@@ -291,8 +291,7 @@ a {
     color: #dbeafe;
     margin-top: 40px;
 }
-
-.site-footer-inner {
+.footer-inner {
     max-width: 1300px;
     margin: 0 auto;
     padding: 44px 22px;
@@ -337,7 +336,7 @@ a {
     color: #fff;
 }
 
-.site-footer-bottom {
+.footer-bottom {
     border-top: 1px solid rgba(255, 255, 255, .12);
     color: #94a3b8;
     text-align: center;
@@ -741,4 +740,112 @@ input[type=number] {
 .yl-category-item:hover .yl-category-icon {
     transform: scale(1.12);
     transition: .2s;
+}
+
+
+/* ===== Post Ad Page ===== */
+
+.post-ad-page {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.post-ad-box {
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 22px;
+    padding: 34px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+}
+
+.post-ad-box h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    color: #0f172a;
+}
+
+.post-ad-box p {
+    margin: 0 0 24px;
+    color: #64748b;
+    font-size: 16px;
+}
+
+.post-login-note {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 22px;
+    font-weight: 800;
+}
+
+.post-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.post-category-card {
+    background: #f8fafc;
+    border: 1px solid #e1e7ef;
+    border-radius: 18px;
+    padding: 28px 18px;
+    text-decoration: none;
+    color: #0f172a;
+    transition: .2s;
+}
+
+.post-category-card:hover {
+    background: #fff;
+    border-color: #0875e1;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .10);
+}
+
+.post-category-icon {
+    font-size: 44px;
+    margin-bottom: 12px;
+}
+
+.post-category-card h2 {
+    margin: 0 0 8px;
+    font-size: 24px;
+}
+
+.post-category-card span {
+    color: #64748b;
+    font-size: 15px;
+}
+
+.post-category-card.disabled {
+    opacity: .65;
+}
+
+@media(max-width:620px) {
+    .post-category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .post-ad-box {
+        padding: 24px 18px;
+    }
+}
+
+/* ביטול סקרול מיותר */
+.site-main {
+    margin: 0 auto !important;
+    padding: 24px 20px 24px !important;
+    min-height: auto !important;
+}
+
+.site-footer {
+    margin-top: 0 !important;
+}
+
+html,
+body {
+    overflow-x: hidden;
 }

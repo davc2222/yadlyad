@@ -1,38 +1,56 @@
 <?php
 require_once 'includes/header.php';
+
+$isLoggedIn = !empty($_SESSION['user_id']);
 ?>
 
 <section class="post-ad-page">
+
     <div class="post-ad-box">
-        <h1>מה תרצה לפרסם?</h1>
-        <p>בחר קטגוריה ראשית והמשך לפרסום המודעה.</p>
+
+        <h1>באיזו קטגוריה תרצה לפרסם?</h1>
+        <p>בחר קטגוריה והמשך לפרסום המודעה</p>
+
+        <?php if (!$isLoggedIn): ?>
+            <div class="post-login-note">
+                כדי לפרסם מודעה יש להתחבר קודם.
+            </div>
+        <?php endif; ?>
 
         <div class="post-category-grid">
-            <a href="/vehicle/add.php" class="post-category-card active">
-                <span>🚗</span>
-                <strong>רכב</strong>
-                <small>מכוניות, אופנועים, מסחריות ומשאיות</small>
+
+           <a href="/vehicle/add.php" class="post-category-card">
+                <class="post-category-card">
+                <div class="post-category-icon">🚗</div>
+                <h2>רכב</h2>
+                <span>מכוניות, אופנועים, מסחריות ומשאיות</span>
             </a>
 
-            <a href="/post_ad.php?category=realestate" class="post-category-card disabled">
-                <span>🏠</span>
-                <strong>נדל״ן</strong>
-                <small>דירות, בתים, משרדים ומחסנים</small>
+            <a href="<?= $isLoggedIn ? '/realestate/add.php' : '/login.php?redirect=/realestate/add.php' ?>"
+                class="post-category-card disabled">
+                <div class="post-category-icon">🏠</div>
+                <h2>נדל״ן</h2>
+                <span>בקרוב</span>
             </a>
 
-            <a href="/post_ad.php?category=secondhand" class="post-category-card disabled">
-                <span>🛋️</span>
-                <strong>יד שנייה</strong>
-                <small>ריהוט, מוצרי חשמל וציוד לבית</small>
+            <a href="<?= $isLoggedIn ? '/secondhand/add.php' : '/login.php?redirect=/secondhand/add.php' ?>"
+                class="post-category-card disabled">
+                <div class="post-category-icon">🏷️</div>
+                <h2>יד שנייה</h2>
+                <span>בקרוב</span>
             </a>
 
-            <a href="/post_ad.php?category=jobs" class="post-category-card disabled">
-                <span>💼</span>
-                <strong>דרושים</strong>
-                <small>משרות, פרילנס ועבודות זמניות</small>
+            <a href="<?= $isLoggedIn ? '/jobs/add.php' : '/login.php?redirect=/jobs/add.php' ?>"
+                class="post-category-card disabled">
+                <div class="post-category-icon">💼</div>
+                <h2>דרושים</h2>
+                <span>בקרוב</span>
             </a>
+
         </div>
+
     </div>
+
 </section>
 
 <?php require_once 'includes/footer.php'; ?>

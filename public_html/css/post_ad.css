@@ -1,0 +1,186 @@
+.post-ad-page {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 20px;
+    max-width: 850px;
+}
+
+.post-ad-box {
+    background: #fff;
+    border: 1px solid #dbe4ef;
+    border-radius: 24px;
+    padding: 18px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .05);
+}
+
+.post-ad-box h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 36px;
+    font-weight: 900;
+    color: #102542;
+}
+
+.post-ad-box>p {
+    margin: 12px 0 30px;
+    text-align: center;
+    color: #64748b;
+    font-size: 20px;
+}
+
+.post-login-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+
+    color: #2563eb;
+
+    padding: 18px;
+    border-radius: 16px;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    margin-bottom: 28px;
+}
+
+.post-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.post-category-card {
+
+    position: relative;
+
+    background: #fff;
+
+    border: 1px solid #dbe4ef;
+
+    border-radius: 22px;
+
+    padding: 38px 30px;
+
+    text-decoration: none;
+
+    color: #102542;
+
+    transition: .25s;
+
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
+
+}
+
+.post-category-card:hover {
+
+    transform: translateY(-5px);
+
+    border-color: #2563eb;
+
+    box-shadow: 0 16px 36px rgba(37, 99, 235, .16);
+
+}
+
+.post-category-icon {
+
+    width: 84px;
+    height: 84px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-size: 42px;
+
+}
+
+.post-category-card h2 {
+
+    margin: 0;
+
+    text-align: center;
+
+    font-size: 34px;
+
+    font-weight: 900;
+
+}
+
+.post-category-card span {
+
+    display: block;
+
+    margin-top: 14px;
+
+    text-align: center;
+
+    color: #64748b;
+
+    line-height: 1.8;
+
+    font-size: 16px;
+
+}
+
+.go-arrow {
+
+    position: absolute;
+
+    left: 26px;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    font-size: 24px;
+
+    color: #2563eb;
+
+    opacity: .35;
+
+    transition: .25s;
+
+}
+
+.post-category-card:hover .go-arrow {
+
+    left: 18px;
+
+    opacity: 1;
+
+}
+
+@media(max-width:700px) {
+
+    .post-category-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .post-ad-box {
+
+        padding: 24px;
+
+    }
+
+    .post-ad-box h1 {
+
+        font-size: 34px;
+
+    }
+
+}

@@ -14,7 +14,9 @@ $isLoggedIn = !empty($_SESSION['user_id']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/responsive.css">
+    <link rel="stylesheet" href="/css/responsive.css">    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/post_ad.css">
+    <link rel="stylesheet" href="/css/my_ads.css">
     <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
@@ -35,17 +37,31 @@ $isLoggedIn = !empty($_SESSION['user_id']);
                 <button type="submit">חפש</button>
             </form>
 
-            <div class="yl-actions">
-                <?php if ($isLoggedIn): ?>
-                    <a href="/profile.php" class="yl-login-btn">אזור אישי</a>
-                    <a href="/logout.php" class="yl-login-btn">התנתק</a>
-                <?php else: ?>
-                    <a href="/login.php" class="yl-login-btn">התחברות</a>
-                <?php endif; ?>
+          <div class="yl-actions">
 
-                <a href="/post_ad.php" class="yl-post-btn">+ פרסם מודעה</a>
-            </div>
-
+    <?php if ($isLoggedIn): ?>
+        
+                <a href="/my_ads.php" class="yl-login-btn">
+                    המודעות שלי
+                </a>
+        
+                <a href="/logout.php" class="yl-login-btn">
+                    התנתק
+                </a>
+        
+            <?php else: ?>
+        
+                <a href="/login.php" class="yl-login-btn">
+                    התחברות
+                </a>
+        
+            <?php endif; ?>
+        
+            <a href="/post_ad.php" class="yl-post-btn">
+                + פרסם מודעה
+            </a>
+        
+        </div>
         </div>
 
         <nav class="yl-category-nav">
@@ -79,7 +95,7 @@ $isLoggedIn = !empty($_SESSION['user_id']);
     </a>
 
 </nav>
-        </nav>
+    
 
     </header>
 
