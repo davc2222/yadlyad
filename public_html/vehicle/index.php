@@ -20,7 +20,7 @@ if ($manufacturer_id > 0) {
     $models = $stmtModels->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$where = ["a.status IN ('pending','active')", "a.is_deleted = 0"];
+$where = ["a.status = 'active'", "a.is_deleted = 0"];
 $params = [];
 
 if ($q !== '') {

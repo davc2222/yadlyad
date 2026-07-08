@@ -20,84 +20,71 @@ if (isset($_GET['logout'])) {
 }
 
 if (empty($_SESSION['admin_logged_in'])):
-    ?>
-    <!DOCTYPE html>
-    <html lang="he" dir="rtl">
+?>
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
 
-    <head>
-        <meta charset="UTF-8">
-        <title>כניסת מנהל</title>
+<head>
+    <meta charset="UTF-8">
+    <title>כניסת מנהל</title>
 
-        <style>
-            body {
-                direction: rtl;
-                font-family: Arial;
-                background: #f4f4f4;
-            }
+    <style>
+        body {
+            direction: rtl;
+            font-family: Arial;
+            background: #f4f4f4;
+        }
 
-            .login-box {
+        .login-box {
+            width: 350px;
+            margin: 120px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #ccc;
+        }
 
-                width: 350px;
-                margin: 120px auto;
-                background: white;
-                padding: 30px;
-                border-radius: 8px;
-                box-shadow: 0 0 10px #ccc;
-            }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            box-sizing: border-box;
+        }
 
-            input {
+        button {
+            padding: 10px 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
 
-                width: 100%;
-                padding: 10px;
-                margin: 15px 0;
-                box-sizing: border-box;
+<body>
 
-            }
+<div class="login-box">
 
-            button {
+    <h2>כניסת מנהל</h2>
 
-                padding: 10px 30px;
-                cursor: pointer;
+    <?php if (!empty($error)): ?>
+        <p style="color:red">
+            <?= htmlspecialchars($error) ?>
+        </p>
+    <?php endif; ?>
 
-            }
-        </style>
+    <form method="post">
+        <input type="password" name="password" placeholder="סיסמת מנהל" required>
+        <button type="submit">כניסה</button>
+    </form>
 
-    </head>
+</div>
 
-    <body>
+</body>
+</html>
 
-        <div class="login-box">
-
-            <h2>כניסת מנהל</h2>
-
-            <?php if (!empty($error)): ?>
-
-                <p style="color:red">
-                    <?= htmlspecialchars($error) ?>
-                </p>
-
-            <?php endif; ?>
-
-            <form method="post">
-
-                <input type="password" name="password" placeholder="סיסמת מנהל" required>
-
-                <button type="submit">
-                    כניסה
-                </button>
-
-            </form>
-
-        </div>
-
-    </body>
-
-    </html>
-
-    <?php
-    exit;
+<?php
+exit;
 endif;
 
+require_once '../includes/db.php';
 require_once '../includes/admin_header.php';
 require_once '../includes/admin_sidebar.php';
 ?>

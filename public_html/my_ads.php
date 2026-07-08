@@ -30,8 +30,10 @@ $stmt = $pdo->prepare("
             LIMIT 1
         ) AS image_path
     FROM vehicle_ads a
-    LEFT JOIN car_makers m ON m.id = a.manufacturer_id
-    LEFT JOIN car_models cm ON cm.id = a.model_id
+    LEFT JOIN car_makers m
+        ON m.id = a.manufacturer_id
+    LEFT JOIN car_models cm
+        ON cm.id = a.model_id
     WHERE a.user_id = ?
       AND a.is_deleted = 0
     ORDER BY a.id DESC
@@ -81,7 +83,15 @@ function status_label($status)
         <div class="my-ads-list">
 
             <?php foreach ($ads as $ad): ?>
-                <?php [$statusText, $statusClass] = status_label($ad['status']); ?>
+                <?php
+                [$statusText, $statusClass] = status_label($ad['status']);
+
+                $carTitle = trim(($ad['maker_name'] ?? '') . ' ' . ($ad['model_name'] ?? ''));
+
+                if ($carTitle === '') {
+                    $carTitle = $ad['title'] ?? 'מודעת רכב';
+                }
+                ?>
 
                 <div class="my-ad-row">
 
@@ -97,11 +107,10 @@ function status_label($status)
 
                         <div class="my-ad-top">
                             <h2>
-                                <?= htmlspecialchars(trim(($ad['maker_name'] ?? '') . ' ' . ($ad['model_name'] ?? ''))) ?>
+                                <?= htmlspecialchars($carTitle) ?>
+
                                 <?php if (!empty($ad['year'])): ?>
-                                    <span>
-                                        <?= (int) $ad['year'] ?>
-                                    </span>
+                                    <span><?= (int) $ad['year'] ?></span>
                                 <?php endif; ?>
                             </h2>
 
@@ -110,7 +119,7 @@ function status_label($status)
                             </span>
                         </div>
 
-                        <?php if (!empty($ad['title'])): ?>
+                        <?php if (!empty($ad['title']) && $ad['title'] !== $carTitle): ?>
                             <div class="my-ad-title">
                                 <?= htmlspecialchars($ad['title']) ?>
                             </div>
@@ -118,26 +127,18 @@ function status_label($status)
 
                         <div class="my-ad-meta">
                             <?php if (!empty($ad['price'])): ?>
-                                <span>₪
-                                    <?= number_format((int) $ad['price']) ?>
-                                </span>
+                                <span>₪ <?= number_format((int) $ad['price']) ?></span>
                             <?php endif; ?>
 
                             <?php if (!empty($ad['hand'])): ?>
-                                <span>יד
-                                    <?= (int) $ad['hand'] ?>
-                                </span>
+                                <span>יד <?= (int) $ad['hand'] ?></span>
                             <?php endif; ?>
 
                             <?php if (!empty($ad['km'])): ?>
-                                <span>
-                                    <?= number_format((int) $ad['km']) ?> ק״מ
-                                </span>
+                                <span><?= number_format((int) $ad['km']) ?> ק״מ</span>
                             <?php endif; ?>
 
-                            <span>
-                                <?= number_format((int) $ad['views']) ?> צפיות
-                            </span>
+                            <span><?= number_format((int) $ad['views']) ?> צפיות</span>
                         </div>
 
                         <div class="my-ad-date">
@@ -148,9 +149,11 @@ function status_label($status)
                         <div class="my-ad-actions">
                             <a href="/vehicle/view.php?id=<?= (int) $ad['id'] ?>">צפייה</a>
                             <a href="/vehicle/edit.php?id=<?= (int) $ad['id'] ?>">עריכה</a>
-                            <a href="/vehicle/images.php?id=<?= (int) $ad['id'] ?>">תמונות</a>
-                            <a href="/vehicle/delete.php?id=<?= (int) $ad['id'] ?>" class="danger"
-                                onclick="return confirm('למחוק את המודעה?');">מחיקה</a>
+                            <a href="/vehicle/delete.php?id=<?= (int) $ad['id'] ?>"
+                               class="danger"
+                               onclick="return confirm('למחוק את המודעה?');">
+                                מחיקה
+                            </a>
                         </div>
 
                     </div>

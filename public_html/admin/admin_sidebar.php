@@ -8,7 +8,7 @@
         <a href="/admin/index.php">🏠 ראשי</a>
         <a href="/admin/categories.php">📂 קטגוריות</a>
         <a href="/admin/vehicle_ads.php">🚗 מודעות רכב</a>
-        <a href="/admin/ads.php">📢 מודעות</a>
+        <a href="/admin/ads.php">📢 מודעות כלליות</a>
         <a href="/admin/users.php">👥 משתמשים</a>
         <a href="/admin/reports.php">📩 פניות</a>
         <a href="/admin/settings.php">⚙️ הגדרות</a>

@@ -1,6 +1,12 @@
 <?php
+
 require_once '../includes/db.php';
 require_once '../includes/header.php';
+
+if (empty($_SESSION['user_id'])) {
+    header('Location: /login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+    exit;
+}
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -9,21 +15,45 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $message = '';
 $error = '';
 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $user_id = 1;
+   
+//$user_id = 1;
+    $user_id = (int) $_SESSION['user_id'];
     $category_id = 1;
     $subcategory_id = 1;
 
     $vehicle_category_id = (int) ($_POST['vehicle_category_id'] ?? 0);
 
     // אין יותר שדה כותרת בטופס. המסד דורש title, לכן נשמרת כותרת אוטומטית.
-    $title = 'מודעת רכב';
+  //  $title = 'מודעת רכב';
     $description = trim($_POST['description'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
 
     $manufacturer_id = (int) ($_POST['manufacturer_id'] ?? 0);
     $model_id = (int) ($_POST['model_id'] ?? 0);
+
+
+    $stmt = $pdo->prepare("
+    SELECT m.name AS maker_name,
+           md.name AS model_name
+    FROM car_makers m
+    JOIN car_models md
+      ON md.id = ?
+    WHERE m.id = ?
+    LIMIT 1
+");
+
+$stmt->execute([$model_id, $manufacturer_id]);
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($row) {
+    $title = trim($row['maker_name'] . ' ' . $row['model_name']);
+} else {
+    $title = 'מודעת רכב';
+}
+
     $year = (int) ($_POST['year'] ?? 0);
 
     $road_month = ($_POST['road_month'] ?? '') !== '' ? (int) $_POST['road_month'] : null;
