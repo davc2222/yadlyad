@@ -17,8 +17,7 @@ require_once 'includes/header.php';
             <h2>רכב</h2>
             <span>מכוניות, אופנועים, מסחריות ומשאיות</span>
         </a>
-
-        <a href="/search.php?category=realestate" class="home-category-card">
+<a href="/realestate/index.php" class="home-category-card">
             <div class="cat-icon">🏠</div>
             <h2>נדל״ן</h2>
             <span>דירות, בתים, משרדים ונכסים</span>

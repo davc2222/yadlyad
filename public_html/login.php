@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         session_regenerate_id(true);
 
-        $_SESSION['user_id'] = (int)$user['id'];
+        $_SESSION['user_id'] = (int) $user['id'];
         $_SESSION['user_name'] = $user['name'];
 
         $redirect = $_GET['redirect'] ?? '/my_ads.php';
@@ -50,6 +50,18 @@ require_once 'includes/header.php';
 
         <h1>התחברות</h1>
 
+        <?php if (isset($_GET['verified']) && $_GET['verified'] === '1'): ?>
+            <div class="auth-success">
+                ✅ כתובת המייל אומתה בהצלחה. עכשיו אפשר להתחבר.
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['reset']) && $_GET['reset'] === '1'): ?>
+            <div class="auth-success">
+                ✅ הסיסמה עודכנה בהצלחה. עכשיו אפשר להתחבר.
+            </div>
+        <?php endif; ?>
+
         <p class="auth-subtitle">
             התחבר לחשבון שלך כדי לנהל את המודעות שפרסמת.
         </p>
@@ -64,19 +76,12 @@ require_once 'includes/header.php';
 
             <div class="field">
                 <label>אימייל</label>
-                <input
-                    type="email"
-                    name="email"
-                    value="<?= htmlspecialchars($email) ?>"
-                    required>
+                <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
             </div>
 
             <div class="field">
                 <label>סיסמה</label>
-                <input
-                    type="password"
-                    name="password"
-                    required>
+                <input type="password" name="password" required>
             </div>
 
             <button type="submit" class="auth-btn">
@@ -87,13 +92,19 @@ require_once 'includes/header.php';
 
         <div class="auth-divider"></div>
 
-        <div class="auth-footer">
+        <div class="auth-bottom-links">
 
-            <span>אין לך חשבון?</span>
-
-            <a href="/register.php">
-                להרשמה לחץ כאן
+            <a href="/forgot_password.php" class="auth-forgot-link">
+                שכחת סיסמה?
             </a>
+
+            <div class="auth-register-line">
+                <span>אין לך חשבון?</span>
+
+                <a href="/register.php">
+                    להרשמה לחץ כאן
+                </a>
+            </div>
 
         </div>
 

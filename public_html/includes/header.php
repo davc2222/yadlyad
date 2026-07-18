@@ -27,23 +27,23 @@ $isLoggedIn = !empty($_SESSION['user_id']);
 
         <div class="yl-header-top">
 
-         <div class="yl-logo-area">
+            <div class="yl-logo-area">
 
-    <a href="/" class="yl-logo">
-        <span class="yl-logo-main">יד<span>ליד</span></span>
-        <small>לוח מודעות יד שנייה</small>
-    </a>
+                <a href="/" class="yl-logo">
+                    <span class="yl-logo-main">יד<span>ליד</span></span>
+                    <small>לוח מודעות יד שנייה</small>
+                </a>
 
-    <?php if ($isLoggedIn): ?>
-                <div class="yl-user-box">
-                    <i class="fa-regular fa-circle-user"></i>
-                    <span class="yl-user-name">
-                        שלום  <?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>
-                    </span>
-                </div>
-            <?php endif; ?>
-        
-        </div>
+                <?php if ($isLoggedIn): ?>
+                    <div class="yl-user-box">
+                        <i class="fa-regular fa-circle-user"></i>
+                        <span class="yl-user-name">
+                            שלום <?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>
+                        </span>
+                    </div>
+                <?php endif; ?>
+
+            </div>
             <form class="yl-search" action="/search.php" method="get">
                 <input type="text" name="q" placeholder="מה אתם מחפשים?">
                 <button type="submit">חפש</button>
@@ -51,8 +51,13 @@ $isLoggedIn = !empty($_SESSION['user_id']);
 
             <div class="yl-actions">
 
+            <?php
+            $isAdmin = strpos($_SERVER['PHP_SELF'], '/admin/') !== false;
+            ?>
+            
+            <?php if (!$isAdmin): ?>
                 <a href="/post_ad.php" class="yl-post-btn">+ פרסם מודעה</a>
-
+            <?php endif; ?>
                 <?php if ($isLoggedIn): ?>
                     <a href="/my_ads.php" class="yl-login-btn">המודעות שלי</a>
                     <a href="/logout.php" class="yl-login-btn">התנתק</a>
@@ -71,12 +76,12 @@ $isLoggedIn = !empty($_SESSION['user_id']);
                 <span>רכב</span>
             </a>
 
-            <a href="/search.php?category=realestate" class="yl-category-item">
+            <a href="/realestate/index.php" class="yl-category-item">
                 <span class="yl-category-icon home"><i class="fa-solid fa-house"></i></span>
                 <span>נדל״ן</span>
             </a>
 
-            <a href="/search.php?category=secondhand" class="yl-category-item">
+            <a href="/secondhand/index.php" class="yl-category-item">
                 <span class="yl-category-icon second"><i class="fa-solid fa-tags"></i></span>
                 <span>יד שנייה</span>
             </a>

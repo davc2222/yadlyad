@@ -5,50 +5,43 @@ error_reporting(E_ALL);
 require_once '../includes/db.php';
 require_once '../includes/header.php';
 ?>
-<link rel="stylesheet" href="/vehicle/css/vehicle.css">
+<link rel="stylesheet" href="/vehicle/css/vehicle.css?v=20260709c">
 
 <?php
-function e($v)
-{
-    return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+function e($v) {
+    return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 }
 
-function hasVal($v)
-{
+function hasVal($v) {
     return $v !== null && $v !== '' && $v !== '0000-00-00';
 }
 
-function fmtDate($date)
-{
+function fmtDate($date) {
     return hasVal($date) ? date('d/m/Y', strtotime($date)) : '';
 }
 
-function fmtMonthYear($month, $year)
-{
-    if (!hasVal($month) || !hasVal($year)) {
-        return '';
-    }
-
-    return str_pad((string) $month, 2, '0', STR_PAD_LEFT) . '/' . $year;
+function fmtMonthYear($month, $year) {
+    if (!hasVal($month) || !hasVal($year)) return '';
+    return str_pad((string)$month, 2, '0', STR_PAD_LEFT) . '/' . $year;
 }
 
-function imageSrc($img)
-{
-    if (!empty($img['image_path'])) {
-        return $img['image_path'];
-    }
-
-    if (!empty($img['image_name'])) {
-        return '/uploads/vehicles/' . $img['ad_id'] . '/' . $img['image_name'];
-    }
-
+function imageSrc($img) {
+    if (!empty($img['image_path'])) return $img['image_path'];
+    if (!empty($img['image_name'])) return '/vehicle/uploads/' . $img['image_name'];
     return '';
 }
 
-$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+function adFlag($ad, $fields) {
+    foreach ((array)$fields as $field) {
+        if (!empty($ad[$field])) return true;
+    }
+    return false;
+}
+
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($id <= 0) {
-    echo "<main class='vehicle-view'><h1>מודעה לא נמצאה</h1></main>";
+    echo "<main class='vehicle-page'><div class='vehicle-not-found'>מודעה לא נמצאה</div></main>";
     require_once '../includes/footer.php';
     exit;
 }
@@ -59,6 +52,8 @@ $stmt = $pdo->prepare("
         cm.name AS manufacturer_name,
         cmo.name AS model_name,
         vcg.name AS vehicle_category_name,
+        r.name AS region_name,
+        c.name AS city_name,
         bt.name AS body_type_name,
         ft.name AS fuel_type_name,
         vc.name AS color_name,
@@ -69,26 +64,29 @@ $stmt = $pdo->prepare("
     LEFT JOIN car_makers cm ON cm.id = va.manufacturer_id
     LEFT JOIN car_models cmo ON cmo.id = va.model_id
     LEFT JOIN vehicle_categories vcg ON vcg.id = va.vehicle_category_id
+    LEFT JOIN regions r ON r.id = va.region_id
+    LEFT JOIN cities c ON c.id = va.city_id
     LEFT JOIN vehicle_body_types bt ON bt.id = va.body_type_id
     LEFT JOIN fuel_types ft ON ft.id = va.fuel_type_id
     LEFT JOIN vehicle_colors vc ON vc.id = va.color_id
     LEFT JOIN ownership_types ot ON ot.id = va.ownership_type_id
     LEFT JOIN vehicle_conditions cond ON cond.id = va.condition_id
     LEFT JOIN vehicle_drive_types dt ON dt.id = va.drive_type_id
-    WHERE
-    va.id = ?
-        AND va.is_deleted = 0
-        AND va.status = 'active'
+    WHERE va.id = ?
+      AND va.is_deleted = 0
+      AND va.status IN ('approved', 'active')
     LIMIT 1
 ");
 $stmt->execute([$id]);
 $ad = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$ad) {
-    echo "<main class='vehicle-view'><h1>מודעה לא נמצאה</h1></main>";
+    echo "<main class='vehicle-page'><div class='vehicle-not-found'>מודעה לא נמצאה</div></main>";
     require_once '../includes/footer.php';
     exit;
 }
+
+$pdo->prepare("UPDATE vehicle_ads SET views = views + 1 WHERE id = ?")->execute([$id]);
 
 $imgStmt = $pdo->prepare("
     SELECT *
@@ -102,281 +100,166 @@ $images = $imgStmt->fetchAll(PDO::FETCH_ASSOC);
 $galleryImages = [];
 foreach ($images as $img) {
     $src = imageSrc($img);
-    if ($src !== '') {
-        $galleryImages[] = $src;
-    }
+    if ($src !== '') $galleryImages[] = $src;
 }
 
 $featuresMap = [
-    'has_abs' => 'ABS',
-    'has_esp' => 'ESP',
-    'has_airbags' => 'כריות אוויר',
-    'has_reverse_camera' => 'מצלמת רוורס',
-    'has_parking_sensors' => 'חיישני רוורס',
-    'has_sunroof' => 'גג נפתח',
-    'has_multimedia' => 'מולטימדיה',
-    'has_navigation' => 'ניווט',
-    'has_cruise_control' => 'בקרת שיוט',
-    'has_alloy_wheels' => 'חישוקי מגנזיום',
-    'has_leather_seats' => 'מושבי עור',
-    'has_android_auto' => 'Android Auto',
-    'has_apple_carplay' => 'Apple CarPlay',
+    ['fields' => ['sunroof', 'has_sunroof'], 'label' => 'גג נפתח'],
+    ['fields' => ['reverse_camera', 'has_reverse_camera'], 'label' => 'מצלמת רוורס'],
+    ['fields' => ['sensors', 'has_parking_sensors'], 'label' => 'חיישני רוורס'],
+    ['fields' => ['alloy_wheels', 'has_alloy_wheels'], 'label' => 'חישוקי מגנזיום'],
+    ['fields' => ['tow_bar'], 'label' => 'וו גרירה'],
+    ['fields' => ['navigation', 'has_navigation'], 'label' => 'ניווט'],
+    ['fields' => ['multimedia', 'has_multimedia'], 'label' => 'מולטימדיה'],
+    ['fields' => ['bluetooth'], 'label' => 'Bluetooth'],
+    ['fields' => ['usb'], 'label' => 'USB'],
+    ['fields' => ['android_auto', 'has_android_auto'], 'label' => 'Android Auto'],
+    ['fields' => ['apple_carplay', 'has_apple_carplay'], 'label' => 'Apple CarPlay'],
+    ['fields' => ['cruise_control', 'has_cruise_control'], 'label' => 'בקרת שיוט'],
+    ['fields' => ['adaptive_cruise'], 'label' => 'בקרת שיוט אדפטיבית'],
+    ['fields' => ['lane_assist'], 'label' => 'שמירה על נתיב'],
+    ['fields' => ['blind_spot'], 'label' => 'זיהוי שטח מת'],
+    ['fields' => ['keyless'], 'label' => 'כניסה ללא מפתח'],
+    ['fields' => ['push_start'], 'label' => 'הנעה בכפתור'],
+    ['fields' => ['abs', 'has_abs'], 'label' => 'ABS'],
+    ['fields' => ['esp', 'has_esp'], 'label' => 'ESP'],
+    ['fields' => ['alarm'], 'label' => 'אזעקה'],
+    ['fields' => ['immobilizer'], 'label' => 'אימובילייזר'],
 ];
 
 $features = [];
-foreach ($featuresMap as $field => $label) {
-    if (!empty($ad[$field])) {
-        $features[] = $label;
-    }
+foreach ($featuresMap as $item) {
+    if (adFlag($ad, $item['fields'])) $features[] = $item['label'];
 }
+if (hasVal($ad['airbags'] ?? '')) {
+    $features[] = 'כריות אוויר: ' . $ad['airbags'];
+}
+
+$regionValue = $ad['region_name'] ?? ($ad['region'] ?? '');
+$cityValue   = $ad['city_name'] ?? ($ad['city'] ?? '');
+
+$title = trim(($ad['manufacturer_name'] ?? '') . ' ' . ($ad['model_name'] ?? '') . ' ' . ($ad['year'] ?? ''));
+if ($title === '') $title = $ad['title'] ?? 'רכב למכירה';
 
 $details = [
     ['יצרן', $ad['manufacturer_name'] ?? ''],
     ['דגם', $ad['model_name'] ?? ''],
+    ['שנה', $ad['year'] ?? ''],
+    ['יד', $ad['hand'] ?? ''],
+    ['ק״מ', hasVal($ad['km'] ?? '') ? number_format((float)$ad['km']) : ''],
+    ['אזור', $regionValue],
+    ['עיר', $cityValue],
     ['קטגוריה', $ad['vehicle_category_name'] ?? ''],
     ['מרכב', $ad['body_type_name'] ?? ''],
-    ['שנה', $ad['year'] ?? ''],
-    ['חודש עלייה', fmtMonthYear($ad['road_month'] ?? '', $ad['year'] ?? '')],
-    ['יד', $ad['hand'] ?? ''],
-    ['ק״מ', hasVal($ad['km'] ?? '') ? number_format((float) $ad['km']) : ''],
     ['דלק', $ad['fuel_type_name'] ?? ''],
     ['נפח מנוע', $ad['engine_volume'] ?? ''],
     ['הנעה', $ad['drive_type_name'] ?? ''],
     ['צבע', $ad['color_name'] ?? ''],
     ['בעלות', $ad['ownership_name'] ?? ''],
-    ['מצב', $ad['condition_name'] ?? ''],
+  
+    ['עלייה לכביש', fmtMonthYear($ad['road_month'] ?? '', $ad['year'] ?? '')],
     ['טסט עד', fmtDate($ad['test_until'] ?? '')],
     ['דלתות', $ad['doors'] ?? ''],
     ['מושבים', $ad['seats'] ?? ''],
+    ['מספר מודעה', $ad['id'] ?? ''],
+    ['צפיות', number_format((int)($ad['views'] ?? 0) + 1)],
     ['פורסם', fmtDate($ad['created_at'] ?? '')],
 ];
 
+$topDetails = [
+    ['שנה', $ad['year'] ?? ''],
+    ['ק״מ', hasVal($ad['km'] ?? '') ? number_format((float)$ad['km']) : ''],
+    ['יד', $ad['hand'] ?? ''],
+    ['דלק', $ad['fuel_type_name'] ?? ''],
+    ['אזור', $regionValue],
+    ['עיר', $cityValue],
+];
+
 $phoneClean = preg_replace('/[^0-9]/', '', $ad['phone'] ?? '');
-$whatsappPhone = '972' . ltrim($phoneClean, '0');
-
-$title = trim(($ad['manufacturer_name'] ?? '') . ' ' . ($ad['model_name'] ?? '') . ' ' . ($ad['year'] ?? ''));
-if ($title === '') {
-    $title = $ad['title'] ?? 'רכב למכירה';
-}
-
+$whatsappPhone = $phoneClean ? '972' . ltrim($phoneClean, '0') : '';
 $mainImage = $galleryImages[0] ?? '';
 ?>
 
-<style>
-.vehicle-main-photo-wrap.has-image {
-    cursor: zoom-in;
-}
+<main class="vehicle-page">
 
-.vehicle-thumbs img {
-    cursor: pointer;
-    opacity: 0.72;
-    transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-    border: 2px solid transparent;
-}
+    <section class="vehicle-ad-shell">
 
-.vehicle-thumbs img.active,
-.vehicle-thumbs img:hover {
-    opacity: 1;
-    border-color: #1d6fe8;
-    transform: translateY(-1px);
-}
-
-.vehicle-lightbox {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.88);
-    direction: ltr;
-}
-
-.vehicle-lightbox.open {
-    display: flex;
-}
-
-.vehicle-lightbox-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 90px;
-}
-
-.vehicle-lightbox-img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    border-radius: 10px;
-    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.45);
-    user-select: none;
-}
-
-.vehicle-lightbox-close,
-.vehicle-lightbox-prev,
-.vehicle-lightbox-next {
-    position: absolute;
-    border: 0;
-    background: rgba(255, 255, 255, 0.16);
-    color: #fff;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.vehicle-lightbox-close:hover,
-.vehicle-lightbox-prev:hover,
-.vehicle-lightbox-next:hover {
-    background: rgba(255, 255, 255, 0.28);
-}
-
-.vehicle-lightbox-close {
-    top: 20px;
-    right: 24px;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    font-size: 34px;
-    line-height: 40px;
-}
-
-.vehicle-lightbox-prev,
-.vehicle-lightbox-next {
-    top: 50%;
-    transform: translateY(-50%);
-    width: 54px;
-    height: 72px;
-    border-radius: 16px;
-    font-size: 46px;
-    line-height: 1;
-}
-
-.vehicle-lightbox-prev {
-    left: 22px;
-}
-
-.vehicle-lightbox-next {
-    right: 22px;
-}
-
-.vehicle-lightbox-counter {
-    position: absolute;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #fff;
-    background: rgba(0, 0, 0, 0.45);
-    padding: 8px 16px;
-    border-radius: 999px;
-    font-size: 14px;
-}
-
-body.vehicle-lightbox-lock {
-    overflow: hidden;
-}
-
-@media (max-width: 700px) {
-    .vehicle-lightbox-inner {
-        padding: 60px 16px 70px;
-    }
-
-    .vehicle-lightbox-prev,
-    .vehicle-lightbox-next {
-        width: 42px;
-        height: 58px;
-        font-size: 34px;
-        border-radius: 12px;
-    }
-
-    .vehicle-lightbox-prev {
-        left: 8px;
-    }
-
-    .vehicle-lightbox-next {
-        right: 8px;
-    }
-
-    .vehicle-lightbox-close {
-        top: 14px;
-        right: 14px;
-    }
-}
-</style>
-
-<main class="vehicle-view">
-
-    <section class="vehicle-hero-card">
-
-        <div class="vehicle-gallery">
-            <div class="vehicle-main-photo-wrap<?= $mainImage ? ' has-image' : '' ?>" id="mainPhotoWrap">
+        <div class="vehicle-gallery-box">
+            <div class="vehicle-main-photo" id="mainPhotoWrap">
                 <?php if ($mainImage): ?>
-                    <img id="mainVehicleImage" class="vehicle-main-image" src="<?= e($mainImage) ?>" alt="<?= e($title) ?>" data-index="0">
+                    <img id="mainVehicleImage" src="<?= e($mainImage) ?>" alt="<?= e($title) ?>" data-index="0">
+                    <?php if (count($galleryImages) > 1): ?>
+                        <button type="button" class="gallery-arrow gallery-prev" id="galleryPrev">‹</button>
+                        <button type="button" class="gallery-arrow gallery-next" id="galleryNext">›</button>
+                    <?php endif; ?>
                 <?php else: ?>
-                    <div class="vehicle-placeholder">אין תמונה</div>
+                    <div class="vehicle-no-photo">אין תמונה</div>
                 <?php endif; ?>
 
-                <div class="vehicle-photo-count">📷 <?= count($galleryImages) ?: 0 ?></div>
-                <button class="vehicle-fav-top" type="button">♡</button>
+                <div class="photo-counter">📷 <?= count($galleryImages) ?></div>
             </div>
 
             <?php if (count($galleryImages) > 1): ?>
                 <div class="vehicle-thumbs" id="vehicleThumbs">
                     <?php foreach ($galleryImages as $index => $src): ?>
-                        <img
-                            src="<?= e($src) ?>"
-                            alt="<?= e($title) ?>"
-                            data-index="<?= (int) $index ?>"
-                            class="<?= $index === 0 ? 'active' : '' ?>">
+                        <img src="<?= e($src) ?>" data-index="<?= (int)$index ?>" class="<?= $index === 0 ? 'active' : '' ?>" alt="">
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
         </div>
 
-        <div class="vehicle-summary">
-            <h1><?= e($title) ?></h1>
+        <aside class="vehicle-side-box">
+            <div class="vehicle-headline">
+                <div class="ad-label">רכב למכירה</div>
+                <h1><?= e($title) ?></h1>
 
-            <div class="vehicle-price">
-                <?= !empty($ad['price']) ? number_format((float) $ad['price']) . ' ₪' : 'מחיר לא צוין' ?>
+                <?php if (hasVal($cityValue) || hasVal($regionValue)): ?>
+                    <div class="vehicle-place">
+                        <?= hasVal($cityValue) ? e($cityValue) : '' ?>
+                        <?= hasVal($cityValue) && hasVal($regionValue) ? ' · ' : '' ?>
+                        <?= hasVal($regionValue) ? e($regionValue) : '' ?>
+                    </div>
+                <?php endif; ?>
+
+                <div class="vehicle-price">
+                    <?= !empty($ad['price']) ? number_format((float)$ad['price']) . ' ₪' : 'מחיר לא צוין' ?>
+                </div>
             </div>
 
-            <div class="vehicle-tags">
-                <?php if (hasVal($ad['year'] ?? '')): ?>
-                    <span><?= e($ad['year']) ?></span>
-                <?php endif; ?>
-
-                <?php if (hasVal($ad['km'] ?? '')): ?>
-                    <span><?= number_format((float) $ad['km']) ?> ק״מ</span>
-                <?php endif; ?>
-
-                <?php if (hasVal($ad['hand'] ?? '')): ?>
-                    <span>יד <?= e($ad['hand']) ?></span>
-                <?php endif; ?>
-
-                <?php if (hasVal($ad['fuel_type_name'] ?? '')): ?>
-                    <span><?= e($ad['fuel_type_name']) ?></span>
-                <?php endif; ?>
+            <div class="top-detail-grid">
+                <?php foreach ($topDetails as [$label, $value]): ?>
+                    <?php if (hasVal($value)): ?>
+                        <div>
+                            <span><?= e($label) ?></span>
+                            <strong><?= e($value) ?></strong>
+                        </div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
             </div>
 
-            <div class="vehicle-small-actions">
-                <button type="button">♡ שמור מודעה</button>
-                <button type="button">↗ שתף</button>
-                <button type="button">⚠ דווח על מודעה</button>
+            <div class="contact-box">
+                <h2>צור קשר</h2>
+
+                <?php if (!empty($ad['phone']) && !empty($ad['allow_whatsapp']) && $whatsappPhone): ?>
+                    <a class="btn-whatsapp" target="_blank" href="https://wa.me/<?= e($whatsappPhone) ?>">WhatsApp</a>
+                <?php endif; ?>
+
+                <?php if (!empty($ad['phone']) && empty($ad['hide_phone'])): ?>
+                    <a class="btn-phone" href="tel:<?= e($phoneClean) ?>">☎ <?= e($ad['phone']) ?></a>
+                <?php endif; ?>
             </div>
-        </div>
+        </aside>
 
     </section>
 
-    <section class="vehicle-main-grid">
+    <section class="vehicle-lower-grid">
 
-        <section class="vehicle-card vehicle-details-card">
+        <section class="vehicle-card details-card">
             <h2>פרטי הרכב</h2>
-
-            <div class="vehicle-details-list">
+            <div class="details-table">
                 <?php foreach ($details as [$label, $value]): ?>
                     <?php if (hasVal($value)): ?>
-                        <div class="vehicle-detail-line">
+                        <div class="detail-row">
                             <span><?= e($label) ?></span>
                             <strong><?= e($value) ?></strong>
                         </div>
@@ -385,10 +268,9 @@ body.vehicle-lightbox-lock {
             </div>
         </section>
 
-        <aside class="vehicle-card vehicle-contact-card">
+        <section class="vehicle-card description-card">
             <h2>תיאור המודעה</h2>
-
-            <div class="vehicle-contact-description">
+            <div class="description-text">
                 <?php if (!empty($ad['description'])): ?>
                     <?= nl2br(e($ad['description'])) ?>
                 <?php else: ?>
@@ -396,164 +278,111 @@ body.vehicle-lightbox-lock {
                 <?php endif; ?>
             </div>
 
-            <div class="vehicle-contact-buttons-bottom">
-                <?php if (!empty($ad['phone']) && !empty($ad['allow_whatsapp'])): ?>
-                    <a class="vehicle-whatsapp-btn" target="_blank" href="https://wa.me/<?= e($whatsappPhone) ?>">
-                        WhatsApp
-                    </a>
-                <?php endif; ?>
-
-                <?php if (!empty($ad['phone']) && empty($ad['hide_phone'])): ?>
-                    <a class="vehicle-phone-btn" href="tel:<?= e($phoneClean) ?>">
-                        ☎ <?= e($ad['phone']) ?>
-                    </a>
-                <?php endif; ?>
-            </div>
-        </aside>
+            <h2 class="features-title">אבזור</h2>
+            <?php if ($features): ?>
+                <div class="features-list">
+                    <?php foreach ($features as $feature): ?>
+                        <span>✓ <?= e($feature) ?></span>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="vehicle-empty">לא צוין אבזור.</div>
+            <?php endif; ?>
+        </section>
 
     </section>
-
-    <?php if ($features): ?>
-        <section class="vehicle-card vehicle-features-strip">
-            <?php foreach ($features as $feature): ?>
-                <span><?= e($feature) ?></span>
-            <?php endforeach; ?>
-        </section>
-    <?php endif; ?>
 
 </main>
 
 <?php if (!empty($galleryImages)): ?>
-    <div class="vehicle-lightbox" id="vehicleLightbox" aria-hidden="true">
-        <div class="vehicle-lightbox-inner" id="vehicleLightboxInner">
-            <button type="button" class="vehicle-lightbox-close" id="vehicleLightboxClose" aria-label="סגור">×</button>
-            <button type="button" class="vehicle-lightbox-prev" id="vehicleLightboxPrev" aria-label="תמונה קודמת">‹</button>
-            <img class="vehicle-lightbox-img" id="vehicleLightboxImg" src="" alt="<?= e($title) ?>">
-            <button type="button" class="vehicle-lightbox-next" id="vehicleLightboxNext" aria-label="תמונה הבאה">›</button>
-            <div class="vehicle-lightbox-counter" id="vehicleLightboxCounter"></div>
-        </div>
-    </div>
+<div class="vehicle-lightbox" id="vehicleLightbox">
+    <button type="button" class="lightbox-close" id="vehicleLightboxClose">×</button>
+    <button type="button" class="lightbox-prev" id="vehicleLightboxPrev">‹</button>
+    <img id="vehicleLightboxImg" src="" alt="<?= e($title) ?>">
+    <button type="button" class="lightbox-next" id="vehicleLightboxNext">›</button>
+    <div class="lightbox-counter" id="vehicleLightboxCounter"></div>
+</div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const images = <?= json_encode(array_values($galleryImages), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
-        const mainImage = document.getElementById('mainVehicleImage');
-        const mainWrap = document.getElementById('mainPhotoWrap');
-        const thumbs = document.querySelectorAll('#vehicleThumbs img');
-        const lightbox = document.getElementById('vehicleLightbox');
-        const lightboxInner = document.getElementById('vehicleLightboxInner');
-        const lightboxImg = document.getElementById('vehicleLightboxImg');
-        const closeBtn = document.getElementById('vehicleLightboxClose');
-        const prevBtn = document.getElementById('vehicleLightboxPrev');
-        const nextBtn = document.getElementById('vehicleLightboxNext');
-        const counter = document.getElementById('vehicleLightboxCounter');
-        let currentIndex = 0;
-        let touchStartX = 0;
-        let touchEndX = 0;
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const images = <?= json_encode(array_values($galleryImages), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+    const mainImage = document.getElementById('mainVehicleImage');
+    const mainWrap = document.getElementById('mainPhotoWrap');
+    const thumbs = document.querySelectorAll('#vehicleThumbs img');
+    const galleryPrev = document.getElementById('galleryPrev');
+    const galleryNext = document.getElementById('galleryNext');
+    const lightbox = document.getElementById('vehicleLightbox');
+    const lightboxImg = document.getElementById('vehicleLightboxImg');
+    const closeBtn = document.getElementById('vehicleLightboxClose');
+    const prevBtn = document.getElementById('vehicleLightboxPrev');
+    const nextBtn = document.getElementById('vehicleLightboxNext');
+    const counter = document.getElementById('vehicleLightboxCounter');
 
-        function setMainImage(index) {
-            if (!images[index] || !mainImage) return;
+    let currentIndex = 0;
 
-            currentIndex = index;
-            mainImage.src = images[index];
-            mainImage.dataset.index = index;
-
-            thumbs.forEach(function (thumb) {
-                thumb.classList.toggle('active', parseInt(thumb.dataset.index, 10) === index);
-            });
-        }
-
-        function openLightbox(index) {
-            if (!images[index]) return;
-
-            currentIndex = index;
-            lightboxImg.src = images[currentIndex];
-            counter.textContent = (currentIndex + 1) + ' / ' + images.length;
-            lightbox.classList.add('open');
-            lightbox.setAttribute('aria-hidden', 'false');
-            document.body.classList.add('vehicle-lightbox-lock');
-        }
-
-        function closeLightbox() {
-            lightbox.classList.remove('open');
-            lightbox.setAttribute('aria-hidden', 'true');
-            document.body.classList.remove('vehicle-lightbox-lock');
-            lightboxImg.src = '';
-        }
-
-        function showNext() {
-            currentIndex = (currentIndex + 1) % images.length;
-            lightboxImg.src = images[currentIndex];
-            counter.textContent = (currentIndex + 1) + ' / ' + images.length;
-            setMainImage(currentIndex);
-        }
-
-        function showPrev() {
-            currentIndex = (currentIndex - 1 + images.length) % images.length;
-            lightboxImg.src = images[currentIndex];
-            counter.textContent = (currentIndex + 1) + ' / ' + images.length;
-            setMainImage(currentIndex);
-        }
+    function setMainImage(index) {
+        if (!images[index] || !mainImage) return;
+        currentIndex = index;
+        mainImage.src = images[index];
+        mainImage.dataset.index = index;
 
         thumbs.forEach(function (thumb) {
-            thumb.addEventListener('click', function () {
-                const index = parseInt(this.dataset.index, 10);
-                setMainImage(index);
-            });
-
-            thumb.addEventListener('dblclick', function () {
-                const index = parseInt(this.dataset.index, 10);
-                openLightbox(index);
-            });
+            thumb.classList.toggle('active', parseInt(thumb.dataset.index, 10) === index);
         });
+    }
 
-        if (mainWrap && mainImage) {
-            mainWrap.addEventListener('click', function (event) {
-                if (event.target.closest('.vehicle-fav-top')) return;
-                openLightbox(parseInt(mainImage.dataset.index || '0', 10));
-            });
-        }
+    function step(direction) {
+        setMainImage((currentIndex + direction + images.length) % images.length);
+    }
 
-        closeBtn.addEventListener('click', closeLightbox);
-        nextBtn.addEventListener('click', showNext);
-        prevBtn.addEventListener('click', showPrev);
+    function openLightbox(index) {
+        if (!images[index]) return;
+        currentIndex = index;
+        lightboxImg.src = images[currentIndex];
+        counter.textContent = (currentIndex + 1) + ' / ' + images.length;
+        lightbox.classList.add('open');
+    }
 
-        lightbox.addEventListener('click', function (event) {
-            if (event.target === lightbox || event.target === lightboxInner) {
-                closeLightbox();
-            }
+    function closeLightbox() {
+        lightbox.classList.remove('open');
+        lightboxImg.src = '';
+    }
+
+    function lightboxStep(direction) {
+        currentIndex = (currentIndex + direction + images.length) % images.length;
+        lightboxImg.src = images[currentIndex];
+        counter.textContent = (currentIndex + 1) + ' / ' + images.length;
+        setMainImage(currentIndex);
+    }
+
+    thumbs.forEach(function (thumb) {
+        thumb.addEventListener('click', function () {
+            setMainImage(parseInt(this.dataset.index, 10));
         });
-
-        document.addEventListener('keydown', function (event) {
-            if (!lightbox.classList.contains('open')) return;
-
-            if (event.key === 'Escape') {
-                closeLightbox();
-            } else if (event.key === 'ArrowRight') {
-                showNext();
-            } else if (event.key === 'ArrowLeft') {
-                showPrev();
-            }
-        });
-
-        lightbox.addEventListener('touchstart', function (event) {
-            touchStartX = event.changedTouches[0].screenX;
-        }, { passive: true });
-
-        lightbox.addEventListener('touchend', function (event) {
-            touchEndX = event.changedTouches[0].screenX;
-            const diff = touchEndX - touchStartX;
-
-            if (Math.abs(diff) < 50) return;
-
-            if (diff < 0) {
-                showNext();
-            } else {
-                showPrev();
-            }
-        }, { passive: true });
     });
-    </script>
+
+    if (galleryPrev) galleryPrev.addEventListener('click', function (e) { e.stopPropagation(); step(-1); });
+    if (galleryNext) galleryNext.addEventListener('click', function (e) { e.stopPropagation(); step(1); });
+
+    if (mainWrap && mainImage) {
+        mainWrap.addEventListener('click', function (e) {
+            if (e.target.closest('button')) return;
+            openLightbox(parseInt(mainImage.dataset.index || '0', 10));
+        });
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+    if (prevBtn) prevBtn.addEventListener('click', function () { lightboxStep(-1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { lightboxStep(1); });
+
+    document.addEventListener('keydown', function (e) {
+        if (!lightbox.classList.contains('open')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') lightboxStep(-1);
+        if (e.key === 'ArrowRight') lightboxStep(1);
+    });
+});
+</script>
 <?php endif; ?>
 
 <?php require_once '../includes/footer.php'; ?>

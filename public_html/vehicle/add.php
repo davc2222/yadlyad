@@ -2,6 +2,8 @@
 
 require_once '../includes/db.php';
 require_once '../includes/header.php';
+require_once '../includes/mail_templates.php';
+
 
 if (empty($_SESSION['user_id'])) {
     header('Location: /login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
@@ -15,44 +17,40 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $message = '';
 $error = '';
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-   
-//$user_id = 1;
     $user_id = (int) $_SESSION['user_id'];
     $category_id = 1;
     $subcategory_id = 1;
 
     $vehicle_category_id = (int) ($_POST['vehicle_category_id'] ?? 0);
 
-    // אין יותר שדה כותרת בטופס. המסד דורש title, לכן נשמרת כותרת אוטומטית.
-  //  $title = 'מודעת רכב';
     $description = trim($_POST['description'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
+
+    $region_id = ($_POST['region_id'] ?? '') !== '' ? (int) $_POST['region_id'] : null;
+    $city_id = ($_POST['city_id'] ?? '') !== '' ? (int) $_POST['city_id'] : null;
 
     $manufacturer_id = (int) ($_POST['manufacturer_id'] ?? 0);
     $model_id = (int) ($_POST['model_id'] ?? 0);
 
-
     $stmt = $pdo->prepare("
-    SELECT m.name AS maker_name,
-           md.name AS model_name
-    FROM car_makers m
-    JOIN car_models md
-      ON md.id = ?
-    WHERE m.id = ?
-    LIMIT 1
-");
+        SELECT m.name AS maker_name,
+               md.name AS model_name
+        FROM car_makers m
+        JOIN car_models md ON md.id = ?
+        WHERE m.id = ?
+        LIMIT 1
+    ");
 
-$stmt->execute([$model_id, $manufacturer_id]);
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->execute([$model_id, $manufacturer_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($row) {
-    $title = trim($row['maker_name'] . ' ' . $row['model_name']);
-} else {
-    $title = 'מודעת רכב';
-}
+    if ($row) {
+        $title = trim($row['maker_name'] . ' ' . $row['model_name']);
+    } else {
+        $title = 'מודעת רכב';
+    }
 
     $year = (int) ($_POST['year'] ?? 0);
 
@@ -76,7 +74,6 @@ if ($row) {
     $doors = ($_POST['doors'] ?? '') !== '' ? (int) $_POST['doors'] : null;
     $seats = ($_POST['seats'] ?? '') !== '' ? (int) $_POST['seats'] : null;
     $ownership_type_id = ($_POST['ownership_type_id'] ?? '') !== '' ? (int) $_POST['ownership_type_id'] : null;
-    $condition_id = ($_POST['condition_id'] ?? '') !== '' ? (int) $_POST['condition_id'] : null;
 
     $test_until_raw = trim($_POST['test_until'] ?? '');
     $test_until = $test_until_raw !== '' ? $test_until_raw . '-01' : null;
@@ -109,40 +106,40 @@ if ($row) {
     } else {
 
         $stmt = $pdo->prepare("
-            INSERT INTO vehicle_ads
-            (
-                user_id, category_id, subcategory_id, vehicle_category_id,
-                title, description, price, is_price_flexible,
-                manufacturer_id, model_id, year, road_month,
-                hand, km,
-                body_type_id, gearbox_id, fuel_type_id,
-                engine_volume, drive_type_id, doors, seats,
-                color_id, ownership_type_id, condition_id, test_until,
-                has_abs, has_esp, has_airbags, has_reverse_camera,
-                has_parking_sensors, has_sunroof, has_multimedia,
-                has_navigation, has_cruise_control, has_alloy_wheels,
-                has_leather_seats, has_android_auto, has_apple_carplay,
-                phone, hide_phone, allow_whatsapp,
-                status, created_at
-            )
-            VALUES
-            (
-                ?, ?, ?, ?,
-                ?, ?, ?, ?,
-                ?, ?, ?, ?,
-                ?, ?,
-                ?, ?, ?,
-                ?, ?, ?, ?,
-                ?, ?, ?, ?,
-                ?, ?, ?, ?,
-                ?, ?, ?,
-                ?, ?, ?,
-                ?, ?, ?,
-                ?, ?, ?,
-                'pending', NOW()
-            )
-        ");
-
+    INSERT INTO vehicle_ads
+    (
+        user_id, category_id, subcategory_id, vehicle_category_id,
+        title, description, price, is_price_flexible,
+        region_id, city_id,
+        manufacturer_id, model_id, year, road_month,
+        hand, km,
+        body_type_id, gearbox_id, fuel_type_id,
+        engine_volume, drive_type_id, doors, seats,
+        color_id, ownership_type_id, test_until,
+        has_abs, has_esp, has_airbags, has_reverse_camera,
+        has_parking_sensors, has_sunroof, has_multimedia,
+        has_navigation, has_cruise_control, has_alloy_wheels,
+        has_leather_seats, has_android_auto, has_apple_carplay,
+        phone, hide_phone, allow_whatsapp,
+        status, created_at
+    )
+    VALUES
+    (
+        ?, ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?,
+        ?, ?, ?, ?,
+        ?, ?,
+        ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?, ?, ?,
+        'pending', NOW()
+    )
+");
         try {
             $stmt->execute([
                 $user_id,
@@ -153,6 +150,8 @@ if ($row) {
                 $description,
                 $price,
                 $is_price_flexible,
+                $region_id,
+                $city_id,
                 $manufacturer_id,
                 $model_id,
                 $year,
@@ -168,7 +167,6 @@ if ($row) {
                 $seats,
                 $color_id,
                 $ownership_type_id,
-                $condition_id,
                 $test_until,
                 $has_abs,
                 $has_esp,
@@ -193,6 +191,17 @@ if ($row) {
 
         $ad_id = (int) $pdo->lastInsertId();
 
+        $mail = mailAdReceived(
+            $pdo,
+            $user_id,
+            $ad_id,
+            'vehicle',
+            $title
+        );
+
+        if (!$mail['success']) {
+            error_log('Vehicle ad received mail error: ' . $mail['error']);
+        }
         if (!empty($_FILES['images']['name'][0])) {
 
             $uploadBaseDir = realpath(__DIR__ . '/../uploads');
@@ -278,17 +287,23 @@ $vehicle_categories = $pdo->query("
     ORDER BY sort_order, name
 ")->fetchAll(PDO::FETCH_ASSOC);
 
+$regions = $pdo->query("
+    SELECT id, name
+    FROM regions
+    WHERE is_active = 1
+    ORDER BY sort_order, name
+")->fetchAll(PDO::FETCH_ASSOC);
+
 $makers = $pdo->query("SELECT id, name FROM car_makers WHERE is_active = 1 ORDER BY sort_order, name")->fetchAll(PDO::FETCH_ASSOC);
 $gearboxes = $pdo->query("SELECT id, name FROM gearboxes WHERE is_active = 1 ORDER BY sort_order, name")->fetchAll(PDO::FETCH_ASSOC);
 $fuel_types = $pdo->query("SELECT id, name FROM fuel_types WHERE is_active = 1 ORDER BY sort_order, name")->fetchAll(PDO::FETCH_ASSOC);
 $colors = $pdo->query("SELECT id, name FROM vehicle_colors WHERE is_active = 1 ORDER BY sort_order, name")->fetchAll(PDO::FETCH_ASSOC);
 $body_types = $pdo->query("SELECT id, name FROM vehicle_body_types WHERE is_active = 1 ORDER BY sort_order, name")->fetchAll(PDO::FETCH_ASSOC);
 $drive_types = $pdo->query("SELECT id, name FROM vehicle_drive_types WHERE is_active = 1 ORDER BY sort_order, name")->fetchAll(PDO::FETCH_ASSOC);
-$conditions = $pdo->query("SELECT id, name FROM vehicle_conditions WHERE is_active = 1 ORDER BY sort_order, name")->fetchAll(PDO::FETCH_ASSOC);
 $ownership_types = $pdo->query("SELECT id, name FROM ownership_types WHERE is_active = 1 ORDER BY sort_order, name")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<link rel="stylesheet" href="/vehicle/css/vehicle_form.css">
+<link rel="stylesheet" href="/vehicle/css/vehicle_form.css?v=20260709_form2">
 
 <section class="vehicle-form-page">
 
@@ -311,7 +326,7 @@ $ownership_types = $pdo->query("SELECT id, name FROM ownership_types WHERE is_ac
         </div>
 
         <div class="form-section">
-            <div class="section-title">פרטי הרכב</div>
+            <div class="section-title">🚗 פרטי הרכב</div>
 
             <div class="form-grid compact-grid">
                 <div class="field">
@@ -321,6 +336,23 @@ $ownership_types = $pdo->query("SELECT id, name FROM ownership_types WHERE is_ac
                         <?php foreach ($vehicle_categories as $cat): ?>
                             <option value="<?= (int) $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
                         <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="field location-field">
+                    <label>אזור</label>
+                    <select name="region_id" id="region_id">
+                        <option value="">בחר אזור</option>
+                        <?php foreach ($regions as $region): ?>
+                            <option value="<?= (int) $region['id'] ?>"><?= htmlspecialchars($region['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="field location-field">
+                    <label>עיר</label>
+                    <select name="city_id" id="city_id">
+                        <option value="">בחר קודם אזור</option>
                     </select>
                 </div>
 
@@ -436,15 +468,7 @@ $ownership_types = $pdo->query("SELECT id, name FROM ownership_types WHERE is_ac
                     </select>
                 </div>
 
-                <div class="field">
-                    <label>מצב הרכב</label>
-                    <select name="condition_id">
-                        <option value="">בחר</option>
-                        <?php foreach ($conditions as $row): ?>
-                            <option value="<?= (int) $row['id'] ?>"><?= htmlspecialchars($row['name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+
 
                 <div class="field">
                     <label>צבע</label>
@@ -464,7 +488,7 @@ $ownership_types = $pdo->query("SELECT id, name FROM ownership_types WHERE is_ac
         </div>
 
         <div class="form-section">
-            <div class="section-title">מחיר ויצירת קשר</div>
+            <div class="section-title">💰 מחיר ויצירת קשר</div>
 
             <div class="form-grid price-grid">
                 <div class="field">
@@ -495,13 +519,13 @@ $ownership_types = $pdo->query("SELECT id, name FROM ownership_types WHERE is_ac
 
         <div class="form-section desc-feature-section">
             <div class="desc-box">
-                <div class="section-title">תיאור המודעה</div>
+                <div class="section-title">📝 תיאור המודעה</div>
                 <textarea name="description" rows="7"
                     placeholder="כתוב פרטים חשובים על מצב הרכב, טיפולים, בעלות, תוספות וכל מידע שיעזור לקונה."></textarea>
             </div>
 
             <div class="features-box">
-                <div class="section-title">אבזור</div>
+                <div class="section-title">🛡️ אבזור</div>
                 <div class="features-grid">
                     <label><input type="checkbox" name="has_abs"> ABS</label>
                     <label><input type="checkbox" name="has_esp"> ESP</label>
@@ -521,7 +545,7 @@ $ownership_types = $pdo->query("SELECT id, name FROM ownership_types WHERE is_ac
         </div>
 
         <div class="form-section upload-section">
-            <div class="section-title">תמונות</div>
+            <div class="section-title">📷 תמונות</div>
 
             <label class="upload-box" id="uploadBox">
                 <input type="file" name="images[]" id="vehicleImagesInput" multiple
@@ -550,42 +574,72 @@ $ownership_types = $pdo->query("SELECT id, name FROM ownership_types WHERE is_ac
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+
+        const regionSelect = document.getElementById('region_id');
+        const citySelect = document.getElementById('city_id');
+
+        if (regionSelect && citySelect) {
+            regionSelect.addEventListener('change', function () {
+                const regionId = this.value;
+
+                citySelect.innerHTML = '<option value="">טוען...</option>';
+
+                if (!regionId) {
+                    citySelect.innerHTML = '<option value="">בחר קודם אזור</option>';
+                    return;
+                }
+
+                fetch('/ajax/get_cities.php?region_id=' + encodeURIComponent(regionId))
+                    .then(response => response.json())
+                    .then(data => {
+                        citySelect.innerHTML = '<option value="">בחר עיר</option>';
+
+                        data.forEach(city => {
+                            const option = document.createElement('option');
+                            option.value = city.id;
+                            option.textContent = city.name;
+                            citySelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        citySelect.innerHTML = '<option value="">שגיאה בטעינת ערים</option>';
+                    });
+            });
+        }
+
         const manufacturerSelect = document.getElementById('manufacturer_id');
         const modelSelect = document.getElementById('model_id');
 
-        if (!manufacturerSelect || !modelSelect) {
-            return;
-        }
+        if (manufacturerSelect && modelSelect) {
+            manufacturerSelect.addEventListener('change', function () {
+                const manufacturerId = this.value;
 
-        manufacturerSelect.addEventListener('change', function () {
-            const manufacturerId = this.value;
+                modelSelect.innerHTML = '<option value="">טוען...</option>';
 
-            modelSelect.innerHTML = '<option value="">טוען...</option>';
-
-            if (!manufacturerId) {
-                modelSelect.innerHTML = '<option value="">בחר דגם</option>';
-                return;
-            }
-
-         //   fetch('/vehicle/ajax/get_models.php?manufacturer_id=' + encodeURIComponent(manufacturerId))
-
-            fetch('/vehicle/ajax/get_models.php?maker_id=' + encodeURIComponent(manufacturerId))
-                .then(response => response.json())
-                .then(data => {
+                if (!manufacturerId) {
                     modelSelect.innerHTML = '<option value="">בחר דגם</option>';
+                    return;
+                }
 
-                    data.forEach(item => {
-                        const option = document.createElement('option');
-                        option.value = item.id;
-                        option.textContent = item.name;
-                        modelSelect.appendChild(option);
+                fetch('/vehicle/ajax/get_models.php?maker_id=' + encodeURIComponent(manufacturerId))
+                    .then(response => response.json())
+                    .then(data => {
+                        modelSelect.innerHTML = '<option value="">בחר דגם</option>';
+
+                        data.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item.id;
+                            option.textContent = item.name;
+                            modelSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        modelSelect.innerHTML = '<option value="">שגיאה בטעינת דגמים</option>';
                     });
-                })
-                .catch(error => {
-                    console.log(error);
-                    modelSelect.innerHTML = '<option value="">שגיאה בטעינת דגמים</option>';
-                });
-        });
+            });
+        }
 
         const imagesInput = document.getElementById('vehicleImagesInput');
         const previewGrid = document.getElementById('imagesPreviewGrid');

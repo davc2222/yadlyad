@@ -11,7 +11,7 @@
         <div class="footer-col">
             <h4>קטגוריות</h4>
             <a href="/vehicle/index.php">רכב</a>
-            <a href="/search.php?category=realestate">נדל״ן</a>
+           <a href="/realestate/index.php" class="yl-category-item">
             <a href="/search.php?category=secondhand">יד שנייה</a>
             <a href="/search.php?category=jobs">דרושים</a>
         </div>

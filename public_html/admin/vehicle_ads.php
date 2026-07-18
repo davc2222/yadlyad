@@ -2,7 +2,7 @@
 require_once '../includes/db.php';
 require_once '../includes/admin_header.php';
 require_once '../includes/admin_sidebar.php';
-
+require_once '../includes/mail_templates.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -71,6 +71,44 @@ if ($id > 0 && in_array($action, ['approve', 'delete'], true)) {
         $stmt->execute([$id]);
     }
 
+    if ($action === 'approve') {
+
+        $stmt = $pdo->prepare("
+        SELECT
+            user_id,
+            title
+        FROM vehicle_ads
+        WHERE id = ?
+          AND is_deleted = 0
+        LIMIT 1
+    ");
+        $stmt->execute([$id]);
+        $ad = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($ad) {
+
+            $stmt = $pdo->prepare("
+            UPDATE vehicle_ads
+            SET status = 'active'
+            WHERE id = ?
+        ");
+            $stmt->execute([$id]);
+
+            $mail = mailAdApproved(
+                $pdo,
+                (int) $ad['user_id'],
+                $id,
+                'vehicle',
+                $ad['title']
+            );
+
+            if (!$mail['success']) {
+                error_log('Vehicle approval mail error: ' . $mail['error']);
+            }
+        }
+    }
+
+      
     redirectBack($status, $q);
 }
 

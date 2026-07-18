@@ -1,0 +1,533 @@
+<?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+require_once '../includes/db.php';
+require_once '../includes/header.php';
+
+function e($v)
+{
+    return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+}
+
+function hasVal($v)
+{
+    return $v !== null && $v !== '' && $v !== '0000-00-00';
+}
+
+function dealTypeText($dealType)
+{
+    if ($dealType === 'sale') return 'מכירה';
+    if ($dealType === 'rent') return 'השכרה';
+    if ($dealType === 'roommates') return 'שותפים';
+    if ($dealType === 'commercial') return 'מסחרי';
+    return '';
+}
+
+$q = trim($_GET['q'] ?? '');
+$subcategoryId = (int) ($_GET['subcategory_id'] ?? 0);
+$dealType = trim($_GET['deal_type'] ?? '');
+$propertyType = trim($_GET['property_type'] ?? '');
+$regionId = (int) ($_GET['region_id'] ?? 0);
+$cityId = (int) ($_GET['city_id'] ?? 0);
+$rooms = trim($_GET['rooms'] ?? '');
+$maxPrice = trim($_GET['max_price'] ?? '');
+
+$where = [
+    "a.is_deleted = 0",
+    "a.status = 'active'"
+];
+
+$params = [];
+
+if ($subcategoryId > 0) {
+    $where[] = "a.subcategory_id = ?";
+    $params[] = $subcategoryId;
+}
+
+if (in_array($dealType, ['sale', 'rent', 'roommates', 'commercial'], true)) {
+    $where[] = "a.deal_type = ?";
+    $params[] = $dealType;
+}
+
+if ($propertyType !== '') {
+    $where[] = "a.property_type = ?";
+    $params[] = $propertyType;
+}
+
+if ($regionId > 0) {
+    $where[] = "a.region_id = ?";
+    $params[] = $regionId;
+}
+
+if ($cityId > 0) {
+    $where[] = "a.city_id = ?";
+    $params[] = $cityId;
+}
+
+if ($rooms !== '' && is_numeric($rooms) && (float) $rooms > 0) {
+    $where[] = "a.rooms >= ?";
+    $params[] = (float) $rooms;
+}
+
+if ($maxPrice !== '' && is_numeric($maxPrice) && (float) $maxPrice > 0) {
+    $where[] = "a.price > 0 AND a.price <= ?";
+    $params[] = (float) $maxPrice;
+}
+
+if ($q !== '') {
+    $where[] = "(
+        a.title LIKE ?
+        OR a.description LIKE ?
+        OR a.property_type LIKE ?
+        OR subcat.name LIKE ?
+        OR c.name LIKE ?
+        OR r.name LIKE ?
+        OR a.street LIKE ?
+        OR a.neighborhood LIKE ?
+    )";
+
+    $like = '%' . $q . '%';
+    array_push($params, $like, $like, $like, $like, $like, $like, $like, $like);
+}
+
+$whereSql = implode("\n      AND ", $where);
+
+$sql = "
+    SELECT
+        a.*,
+        subcat.name AS subcategory_name,
+        r.name AS region_name,
+        c.name AS city_name,
+        img.image_path,
+        img.image_name
+    FROM realestate_ads a
+    LEFT JOIN categories subcat ON subcat.id = a.subcategory_id
+    LEFT JOIN regions r ON r.id = a.region_id
+    LEFT JOIN cities c ON c.id = a.city_id
+    LEFT JOIN (
+        SELECT ri1.ad_id, ri1.image_path, ri1.image_name
+        FROM realestate_images ri1
+        INNER JOIN (
+            SELECT ad_id, MIN(id) AS min_id
+            FROM realestate_images
+            GROUP BY ad_id
+        ) ri2 ON ri2.ad_id = ri1.ad_id AND ri2.min_id = ri1.id
+    ) img ON img.ad_id = a.id
+    WHERE {$whereSql}
+    ORDER BY a.id DESC
+";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$ads = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$subcategories = [];
+try {
+    $stmt = $pdo->prepare("
+        SELECT id, name
+        FROM categories
+        WHERE parent_id = 3
+          AND is_active = 1
+        ORDER BY sort_order, name
+    ");
+    $stmt->execute();
+    $subcategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Throwable $e) {
+    $subcategories = [];
+}
+
+$regions = [];
+try {
+    $stmt = $pdo->query("SELECT id, name FROM regions ORDER BY name");
+    $regions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Throwable $e) {
+    $regions = [];
+}
+
+$cities = [];
+if ($regionId > 0) {
+    try {
+        $stmt = $pdo->prepare("SELECT id, name FROM cities WHERE region_id = ? ORDER BY name");
+        $stmt->execute([$regionId]);
+        $cities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        $cities = [];
+    }
+}
+
+$propertyTypes = [
+    'דירה', 'דירת גן', 'דופלקס', 'פנטהאוז', 'בית פרטי', 'קוטג׳',
+    'דו משפחתי', 'יחידת דיור', 'מגרש', 'מחסן', 'משרד', 'חנות',
+    'מבנה תעשייה', 'נחלה', 'משק חקלאי', 'אחר'
+];
+?>
+
+<link rel="stylesheet" href="/secondhand/css/secondhand.css?v=12">
+
+<main class="secondhand-page">
+    <section class="secondhand-hero">
+        <div>
+            <span class="secondhand-kicker">נדל״ן</span>
+            <h1>מודעות נדל״ן</h1>
+            <p>חפש נכסים לפי סוג עסקה, סוג נכס, אזור, עיר, חדרים ומחיר.</p>
+        </div>
+        <a class="secondhand-post-btn" href="/realestate/add.php">פרסם מודעה</a>
+    </section>
+
+    <section class="secondhand-toolbar">
+        <form class="secondhand-search-form" id="realestateSearchForm" method="get" action="/realestate/index.php">
+            <div class="secondhand-field">
+                <label>קטגוריה</label>
+                <select name="subcategory_id">
+                    <option value="0">כל הקטגוריות</option>
+                    <?php foreach ($subcategories as $sub): ?>
+                        <option value="<?= (int) $sub['id'] ?>" <?= $subcategoryId === (int) $sub['id'] ? 'selected' : '' ?>><?= e($sub['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="secondhand-field">
+                <label>סוג עסקה</label>
+                <select name="deal_type">
+                    <option value="">כל העסקאות</option>
+                    <option value="sale" <?= $dealType === 'sale' ? 'selected' : '' ?>>מכירה</option>
+                    <option value="rent" <?= $dealType === 'rent' ? 'selected' : '' ?>>השכרה</option>
+                    <option value="roommates" <?= $dealType === 'roommates' ? 'selected' : '' ?>>שותפים</option>
+                    <option value="commercial" <?= $dealType === 'commercial' ? 'selected' : '' ?>>מסחרי</option>
+                </select>
+            </div>
+
+            <div class="secondhand-field">
+                <label>סוג נכס</label>
+                <select name="property_type">
+                    <option value="">כל סוגי הנכסים</option>
+                    <?php foreach ($propertyTypes as $type): ?>
+                        <option value="<?= e($type) ?>" <?= $propertyType === $type ? 'selected' : '' ?>><?= e($type) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="secondhand-field">
+                <label>אזור</label>
+                <select name="region_id" id="region_id">
+                    <option value="0">כל האזורים</option>
+                    <?php foreach ($regions as $region): ?>
+                        <option value="<?= (int) $region['id'] ?>" <?= $regionId === (int) $region['id'] ? 'selected' : '' ?>><?= e($region['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="secondhand-field">
+                <label>עיר</label>
+                <select name="city_id" id="city_id" <?= $regionId <= 0 ? 'disabled' : '' ?>>
+                    <option value="0">כל הערים</option>
+                    <?php foreach ($cities as $city): ?>
+                        <option value="<?= (int) $city['id'] ?>" <?= $cityId === (int) $city['id'] ? 'selected' : '' ?>><?= e($city['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="secondhand-field">
+                <label>חדרים מינימום</label>
+                <select name="rooms">
+                    <option value="">הכול</option>
+                    <?php foreach ([1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6] as $roomValue): ?>
+                        <option value="<?= e($roomValue) ?>" <?= (string) $rooms === (string) $roomValue ? 'selected' : '' ?>><?= e($roomValue) ?>+</option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="secondhand-field secondhand-price-field">
+                <label>עד מחיר</label>
+                <input type="number" name="max_price" value="<?= e($maxPrice) ?>" min="0" placeholder="₪">
+            </div>
+
+            <div class="secondhand-field secondhand-free-field">
+                <label>חיפוש חופשי</label>
+                <input type="text" name="q" id="realestateFreeSearch" value="<?= e($q) ?>" placeholder="רחוב, שכונה או כותרת">
+            </div>
+
+            <div class="secondhand-actions">
+                <button type="submit">חפש</button>
+                <a href="/realestate/index.php">נקה</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="secondhand-results-head">
+        <h2>תוצאות</h2>
+        <span><span id="realestateResultsCount"><?= count($ads) ?></span> מודעות נמצאו</span>
+    </section>
+
+    <div id="realestateSearchLoading" style="display:none;padding:12px 0;color:#64748b;font-weight:700;">מחפש...</div>
+
+    <div id="realestateResults">
+        <?php if (!$ads): ?>
+            <section class="secondhand-empty">
+                <h2>לא נמצאו מודעות</h2>
+                <p>נסה לשנות את החיפוש או לנקות את הסינונים.</p>
+            </section>
+        <?php else: ?>
+            <section class="realestate-grid">
+                <?php foreach ($ads as $ad): ?>
+                    <?php
+                    $title = trim($ad['title'] ?? '') ?: 'מודעת נדל״ן';
+                    $img = !empty($ad['image_path']) ? $ad['image_path'] : (!empty($ad['image_name']) ? '/realestate/uploads/' . $ad['image_name'] : '');
+                    $locationParts = [];
+                    if (!empty($ad['city_name'])) $locationParts[] = $ad['city_name'];
+                    if (!empty($ad['region_name'])) $locationParts[] = $ad['region_name'];
+                    $location = implode(' · ', $locationParts);
+                    $description = trim(strip_tags($ad['description'] ?? '')) ?: 'לא נוסף תיאור למודעה';
+                    $hasPrice = !empty($ad['price']) && (float) $ad['price'] > 0;
+                    $isFlexible = !empty($ad['is_price_flexible']);
+                    $details = [];
+                    if (!empty($ad['property_type'])) $details[] = $ad['property_type'];
+                    if (!empty($ad['deal_type']) && dealTypeText($ad['deal_type']) !== '') $details[] = dealTypeText($ad['deal_type']);
+                    if (hasVal($ad['rooms'])) $details[] = $ad['rooms'] . ' חדרים';
+                    if (!empty($ad['square_meters'])) $details[] = (int) $ad['square_meters'] . ' מ״ר';
+                    ?>
+
+                    <?php
+                    $adId = (int) $ad['id'];
+                    $phone = trim($ad['phone'] ?? '');
+                    $cleanPhone = preg_replace('/[^0-9+]/', '', $phone);
+
+                    $addressParts = [];
+
+                    if (!empty($ad['street'])) {
+                        $addressParts[] = $ad['street'];
+                    }
+
+                    if (!empty($ad['neighborhood'])) {
+                        $addressParts[] = $ad['neighborhood'];
+                    }
+
+                    $address = implode(' · ', $addressParts);
+                    ?>
+
+                    <article class="property-card">
+
+                        <div class="property-image-wrap">
+
+                            <a class="property-image-link"
+                               href="/realestate/view.php?id=<?= $adId ?>">
+
+                                <?php if ($img !== ''): ?>
+                                    <img
+                                        src="<?= e($img) ?>"
+                                        alt="<?= e($title) ?>"
+                                        loading="lazy"
+                                    >
+                                <?php else: ?>
+                                    <div class="property-no-image">
+                                        <span>🏠</span>
+                                    </div>
+                                <?php endif; ?>
+
+                            </a>
+
+                            <span class="property-image-badge">
+                                📷 תמונות
+                            </span>
+
+                            <span class="property-favorite">
+                                ♡
+                            </span>
+
+                        </div>
+
+                        <div class="property-body">
+
+                            <a
+                                class="property-title-link"
+                                href="/realestate/view.php?id=<?= $adId ?>"
+                            >
+                                <h3 class="property-title">
+                                    <?= e($title) ?>
+                                </h3>
+                            </a>
+
+                            <?php if ($location !== ''): ?>
+                                <div class="property-location">
+                                    <span>📍</span>
+                                    <span><?= e($location) ?></span>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ($address !== ''): ?>
+                                <div class="property-address">
+                                    <?= e($address) ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="property-features">
+
+                                <?php if (!empty($ad['property_type'])): ?>
+                                    <span>
+                                        🏠 <?= e($ad['property_type']) ?>
+                                    </span>
+                                <?php endif; ?>
+
+                                <?php if (hasVal($ad['rooms'])): ?>
+                                    <span>
+                                        🛏 <?= e($ad['rooms']) ?> חדרים
+                                    </span>
+                                <?php endif; ?>
+
+                                <?php if (!empty($ad['square_meters'])): ?>
+                                    <span>
+                                        📐 <?= (int) $ad['square_meters'] ?> מ״ר
+                                    </span>
+                                <?php endif; ?>
+
+                                <?php if (hasVal($ad['floor'] ?? null)): ?>
+                                    <span>
+                                        🏢 קומה <?= e($ad['floor']) ?>
+                                    </span>
+                                <?php endif; ?>
+
+                                <?php if (
+                                    !empty($ad['deal_type'])
+                                    && dealTypeText($ad['deal_type']) !== ''
+                                ): ?>
+                                    <span>
+                                        🔑 <?= e(dealTypeText($ad['deal_type'])) ?>
+                                    </span>
+                                <?php endif; ?>
+
+                            </div>
+
+                            <div class="property-description-title">
+                                תיאור המודעה
+                            </div>
+
+                            <p class="property-description">
+                                <?= e($description) ?>
+                            </p>
+
+                            <div class="property-price-row">
+
+                                <div class="property-price">
+                                    <?= $hasPrice
+                                        ? number_format((float) $ad['price']) . ' ₪'
+                                        : 'מחיר לא צוין'
+                                    ?>
+                                </div>
+
+                                <?php if ($isFlexible): ?>
+                                    <span class="property-flexible">
+                                        מחיר גמיש
+                                    </span>
+                                <?php endif; ?>
+
+                            </div>
+
+                            <div class="property-actions">
+
+                                <a
+                                    class="property-details-btn"
+                                    href="/realestate/view.php?id=<?= $adId ?>"
+                                >
+                                    👁 לפרטים
+                                </a>
+
+                                <?php if ($cleanPhone !== ''): ?>
+                                    <a
+                                        class="property-contact-btn"
+                                        href="tel:<?= e($cleanPhone) ?>"
+                                    >
+                                        ☎ צור קשר
+                                    </a>
+                                <?php else: ?>
+                                    <a
+                                        class="property-contact-btn"
+                                        href="/realestate/view.php?id=<?= $adId ?>"
+                                    >
+                                        ☎ צור קשר
+                                    </a>
+                                <?php endif; ?>
+
+                            </div>
+
+                            <div class="property-meta">
+                                <span>
+                                    <?= (int) ($ad['views'] ?? 0) ?> צפיות
+                                </span>
+
+                                <span>
+                                    מודעה #<?= $adId ?>
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </article>
+                <?php endforeach; ?>
+            </section>
+        <?php endif; ?>
+    </div>
+</main>
+
+<style>
+.realestate-card-details{min-height:21px;margin:0 0 11px;color:#536176;font-size:13px;font-weight:700;line-height:1.55}
+.realestate-home-placeholder{font-size:48px;opacity:.65}
+.secondhand-search-form{grid-template-columns:1.15fr 1fr 1.1fr 1fr 1fr .85fr .9fr 1.4fr auto}
+@media(max-width:1100px){.secondhand-search-form{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:760px){.secondhand-search-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.secondhand-search-form{grid-template-columns:1fr}}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const region = document.getElementById('region_id');
+    const city = document.getElementById('city_id');
+
+    if (!region || !city) {
+        return;
+    }
+
+    region.addEventListener('change', async function () {
+        city.innerHTML = '<option value="0">טוען ערים...</option>';
+        city.disabled = true;
+
+        if (!this.value || this.value === '0') {
+            city.innerHTML = '<option value="0">כל הערים</option>';
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                '/ajax/get_cities.php?region_id='
+                + encodeURIComponent(this.value),
+                {cache: 'no-store'}
+            );
+
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+
+            const cities = await response.json();
+
+            city.innerHTML = '<option value="0">כל הערים</option>';
+
+            cities.forEach(function (item) {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.name;
+                city.appendChild(option);
+            });
+
+            city.disabled = false;
+
+        } catch (error) {
+            console.error(error);
+
+            city.innerHTML =
+                '<option value="0">שגיאה בטעינת ערים</option>';
+        }
+    });
+});
+</script>
+
+<?php require_once '../includes/footer.php'; ?>

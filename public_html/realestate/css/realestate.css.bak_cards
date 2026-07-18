@@ -1,0 +1,461 @@
+.realestate-page {
+    width: min(1460px, calc(100% - 32px));
+    margin: 24px auto 50px;
+    direction: rtl
+}
+
+.realestate-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 20px;
+    padding: 24px 28px;
+    color: #fff;
+    background: linear-gradient(135deg, #0e4f83, #17659d);
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(24, 78, 119, .16)
+}
+
+.realestate-hero h1 {
+    margin: 3px 0 6px;
+    font-size: 31px;
+    line-height: 1.2
+}
+
+.realestate-hero p {
+    margin: 0;
+    font-size: 15px;
+    opacity: .94
+}
+
+.realestate-kicker {
+    font-size: 13px;
+    font-weight: 800;
+    opacity: .86
+}
+
+.realestate-post-btn {
+    min-width: 170px;
+    padding: 13px 22px;
+    color: #0e4f83;
+    background: #fff;
+    border-radius: 11px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .08)
+}
+
+.realestate-toolbar {
+    margin-bottom: 25px;
+    padding: 19px;
+    background: #fff;
+    border: 1px solid #e5eaf0;
+    border-radius: 17px;
+    box-shadow: 0 5px 16px rgba(15, 23, 42, .08)
+}
+
+.realestate-search-form {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(120px, 1fr));
+    gap: 13px;
+    align-items: end
+}
+
+.realestate-field {
+    min-width: 0
+}
+
+.realestate-field label {
+    display: block;
+    margin-bottom: 7px;
+    color: #263b52;
+    font-size: 13px;
+    font-weight: 800
+}
+
+.realestate-field select,
+.realestate-field input {
+    width: 100%;
+    height: 45px;
+    padding: 0 12px;
+    border: 1px solid #ccd7e3;
+    border-radius: 9px;
+    background: #fff;
+    color: #172b3f;
+    font-size: 14px;
+    box-sizing: border-box
+}
+
+.realestate-field select:focus,
+.realestate-field input:focus {
+    border-color: #17659d;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(23, 101, 157, .12)
+}
+
+.realestate-field select:disabled {
+    color: #9aa7b5;
+    background: #f6f8fa
+}
+
+.realestate-free-field {
+    grid-column: 1/span 5
+}
+
+.realestate-actions {
+    grid-column: 6/span 2;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 11px
+}
+
+.realestate-actions button,
+.realestate-actions a {
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    box-sizing: border-box
+}
+
+.realestate-actions button {
+    border: 0;
+    color: #fff;
+    background: #0f568e;
+    cursor: pointer
+}
+
+.realestate-actions a {
+    color: #24374b;
+    background: #e8edf2
+}
+
+.realestate-results-head {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0 3px 15px
+}
+
+.realestate-results-head h2 {
+    margin: 0;
+    color: #102a43;
+    font-size: 28px
+}
+
+.realestate-results-head p {
+    margin: 6px 0 0;
+    color: #5f6f80;
+    font-size: 14px
+}
+
+.realestate-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px
+}
+
+.property-card {
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #dfe6ed;
+    border-radius: 17px;
+    box-shadow: 0 7px 21px rgba(15, 23, 42, .09);
+    transition: .18s
+}
+
+.property-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .13)
+}
+
+.property-image-wrap {
+    position: relative;
+    height: 285px;
+    overflow: hidden;
+    background: #eaf0f4
+}
+
+.property-image-link {
+    display: block;
+    width: 100%;
+    height: 100%
+}
+
+.property-image-link img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform .28s
+}
+
+.property-card:hover .property-image-link img {
+    transform: scale(1.025)
+}
+
+.property-no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 72px;
+    background: #edf3f7
+}
+
+.property-image-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 8px 12px;
+    color: #fff;
+    background: rgba(10, 83, 134, .94);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 800;
+    pointer-events: none
+}
+
+.property-favorite {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #173550;
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid rgba(20, 54, 82, .14);
+    border-radius: 50%;
+    font-size: 31px;
+    line-height: 1;
+    pointer-events: none
+}
+
+.property-body {
+    padding: 21px 22px 17px
+}
+
+.property-title-link {
+    color: inherit;
+    text-decoration: none
+}
+
+.property-title {
+    margin: 0 0 9px;
+    color: #112f4b;
+    font-size: 25px;
+    font-weight: 900;
+    line-height: 1.35;
+    overflow-wrap: anywhere
+}
+
+.property-location {
+    margin-bottom: 5px;
+    color: #5b6a79;
+    font-size: 14px;
+    font-weight: 700
+}
+
+.property-address {
+    margin-bottom: 13px;
+    color: #758292;
+    font-size: 13px
+}
+
+.property-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 19px;
+    margin: 16px 0;
+    padding: 13px 0;
+    color: #465d72;
+    border-top: 1px solid #edf0f3;
+    border-bottom: 1px solid #edf0f3;
+    font-size: 13px;
+    font-weight: 700
+}
+
+.property-description {
+    min-height: 53px;
+    margin: 0 0 17px;
+    color: #526273;
+    font-size: 14px;
+    line-height: 1.85;
+    overflow-wrap: anywhere;
+    white-space: normal
+}
+
+.property-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 7px;
+    padding-top: 17px;
+    border-top: 1px solid #e5e9ed
+}
+
+.property-price {
+    color: #0e4f83;
+    font-size: 34px;
+    font-weight: 900;
+    line-height: 1
+}
+
+.property-flexible {
+    color: #08795b;
+    font-size: 13px;
+    font-weight: 900
+}
+
+.property-actions {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 13px;
+    margin-top: 20px
+}
+
+.property-actions a {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 900
+}
+
+.property-contact-btn {
+    color: #fff;
+    background: #0d568d;
+    border: 1px solid #0d568d
+}
+
+.property-details-btn {
+    color: #0d568d;
+    background: #fff;
+    border: 2px solid #0d568d
+}
+
+.property-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 14px;
+    color: #83909d;
+    font-size: 12px
+}
+
+.realestate-empty {
+    padding: 55px 20px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #e1e7ed;
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, .07)
+}
+
+@media(max-width:1120px) {
+    .realestate-search-form {
+        grid-template-columns: repeat(4, minmax(0, 1fr))
+    }
+
+    .realestate-free-field {
+        grid-column: 1/span 3
+    }
+
+    .realestate-actions {
+        grid-column: 4
+    }
+
+    .realestate-grid {
+        grid-template-columns: 1fr
+    }
+}
+
+@media(max-width:760px) {
+    .realestate-page {
+        width: min(100% - 20px, 1460px);
+        margin-top: 14px
+    }
+
+    .realestate-hero {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 20px
+    }
+
+    .realestate-post-btn {
+        width: 100%;
+        box-sizing: border-box
+    }
+
+    .realestate-search-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+    }
+
+    .realestate-free-field,
+    .realestate-actions {
+        grid-column: 1/-1
+    }
+
+    .property-image-wrap {
+        height: 235px
+    }
+
+    .property-title {
+        font-size: 22px
+    }
+
+    .property-price {
+        font-size: 29px
+    }
+}
+
+@media(max-width:520px) {
+    .realestate-search-form {
+        grid-template-columns: 1fr
+    }
+
+    .realestate-free-field,
+    .realestate-actions {
+        grid-column: auto
+    }
+
+    .realestate-actions {
+        grid-template-columns: 1fr
+    }
+
+    .property-image-wrap {
+        height: 210px
+    }
+
+    .property-body {
+        padding: 18px 16px 15px
+    }
+
+    .property-actions {
+        grid-template-columns: 1fr
+    }
+
+    .property-price-row {
+        align-items: flex-start;
+        flex-direction: column
+    }
+
+    .property-meta {
+        flex-direction: column;
+        gap: 4px
+    }
+}

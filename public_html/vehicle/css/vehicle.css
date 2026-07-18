@@ -2,194 +2,236 @@ body {
     background: #f3f6fa;
 }
 
-.vehicle-view {
-    max-width: 1180px;
+.vehicle-page {
+    max-width: 1120px;
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 18px 14px 34px;
     direction: rtl;
-}
-
-.vehicle-hero-card,
-.vehicle-card {
-    background: #fff;
-    border: 1px solid #e1e7ef;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    color: #111827;
     box-sizing: border-box;
 }
 
-/* ===== כרטיס עליון ===== */
+.vehicle-page *,
+.vehicle-page *::before,
+.vehicle-page *::after {
+    box-sizing: border-box;
+}
 
-.vehicle-hero-card {
+.vehicle-ad-shell {
     display: grid;
-    grid-template-columns: 52% 48%;
-    gap: 0;
-    padding: 0;
-    margin: 0;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 14px;
     align-items: stretch;
-    border-radius: 18px 18px 0 0;
+}
+
+.vehicle-gallery-box,
+.vehicle-side-box,
+.vehicle-card {
+    background: #fff;
+    border: 1px solid #dde5ef;
+    border-radius: 14px;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
     overflow: hidden;
 }
 
-.vehicle-gallery {
-    width: 100%;
-    padding: 0;
-    margin: 0;
+.vehicle-main-photo {
+    position: relative;
+    height: 360px;
+    background: #e8eef6;
+    cursor: zoom-in;
 }
 
-.vehicle-main-photo-wrap {
-    position: relative;
-    margin: 0;
-}
-.vehicle-main-image,
-.vehicle-placeholder {
+.vehicle-main-photo img,
+.vehicle-no-photo {
     width: 100%;
-    height: 240px;
-    border-radius: 0;
+    height: 100%;
     object-fit: cover;
-    background: #eef2f7;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #64748b;
     font-size: 20px;
+    font-weight: 800;
 }
 
-.vehicle-photo-count {
+.photo-counter {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: rgba(15, 23, 42, .75);
+    background: rgba(15, 23, 42, 0.75);
     color: #fff;
     border-radius: 999px;
-    padding: 6px 12px;
+    padding: 6px 11px;
+    font-size: 13px;
     font-weight: 800;
-    font-size: 14px;
 }
 
-.vehicle-fav-top {
+.gallery-arrow {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 54px;
     border: 0;
-    background: #fff;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
     color: #0f172a;
-    font-size: 28px;
+    font-size: 36px;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, .15);
+    z-index: 2;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, .18);
+}
+
+.gallery-prev {
+    right: 12px;
+}
+
+.gallery-next {
+    left: 12px;
 }
 
 .vehicle-thumbs {
-    display: flex;
-    gap: 0;
-    margin: 0;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 90px;
+    gap: 8px;
+    padding: 10px;
     overflow-x: auto;
-    padding: 0;
+    background: #fff;
+    border-top: 1px solid #e5edf5;
 }
 
 .vehicle-thumbs img {
-    width: 86px;
-    height: 64px;
+    width: 90px;
+    height: 62px;
     object-fit: cover;
-    border-radius: 0;
+    border-radius: 9px;
+    border: 2px solid transparent;
     cursor: pointer;
-    border: 0;
-    border-left: 1px solid #e1e7ef;
+    opacity: .7;
 }
 
+.vehicle-thumbs img.active,
 .vehicle-thumbs img:hover {
-    outline: 2px solid #0875e1;
-    outline-offset: -2px;
+    border-color: #0875e1;
+    opacity: 1;
 }
 
-.vehicle-summary {
+.vehicle-side-box {
+    padding: 18px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding: 16px;
-    margin: 0;
-    border-right: 1px solid #e1e7ef;
+    gap: 16px;
 }
 
-.vehicle-summary h1 {
-    margin: 0 0 6px;
-    font-size: 24px;
+.ad-label {
+    display: inline-block;
+    background: #eef6ff;
+    color: #0875e1;
+    border-radius: 999px;
+    padding: 5px 11px;
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.vehicle-headline h1 {
+    margin: 0;
+    font-size: 25px;
+    line-height: 1.25;
+    font-weight: 900;
     color: #0f172a;
-    font-weight: 800;
-    line-height: 1.2;
+}
+
+.vehicle-place {
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
 }
 
 .vehicle-price {
-    font-size: 30px;
-    font-weight: 800;
+    margin-top: 14px;
+    font-size: 31px;
+    line-height: 1;
     color: #0875e1;
-    margin: 0 0 12px;
-}
-.vehicle-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 0;
+    font-weight: 900;
 }
 
-.vehicle-tags span {
-    background: #f1f5f9;
-    color: #0f172a;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 13px;
-}
-
-
-.vehicle-small-actions {
-    display: flex;
-    gap: 12px;
-    border-top: 1px solid #edf1f7;
-    padding-top: 12px;
-    margin-top: 12px;
-}
-
-.vehicle-small-actions button {
-    border: 0;
-    background: transparent;
-    color: #475569;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-/* ===== מרכז הדף ===== */
-
-.vehicle-main-grid {
+.top-detail-grid {
     display: grid;
-    grid-template-columns: 1.35fr .85fr;
-    gap: 0;
-    margin: 0;
-    align-items: stretch;
-    direction: rtl;
-    border-radius: 0;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
 }
 
-.vehicle-main-grid>.vehicle-card {
-    margin: 0;
-    min-height: 300px;
-    box-shadow: none;
-    border-radius: 0;
+.top-detail-grid div {
+    background: #f8fafc;
+    border: 1px solid #e1e8f0;
+    border-radius: 10px;
+    padding: 9px 10px;
+    min-height: 56px;
 }
 
-.vehicle-details-card {
-    border-left: 0;
-    border-right: 1px solid #e1e7ef;
+.top-detail-grid span {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 4px;
 }
 
-.vehicle-contact-card {
-    border-right: 0;
-    border-left: 1px solid #e1e7ef;
+.top-detail-grid strong {
+    display: block;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.contact-box {
+    margin-top: auto;
+    border-top: 1px solid #e1e8f0;
+    padding-top: 14px;
+}
+
+.contact-box h2 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #0f172a;
+    font-weight: 900;
+}
+
+.btn-whatsapp,
+.btn-phone {
+    width: 100%;
+    height: 45px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 900;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    font-size: 15px;
+}
+
+.btn-whatsapp {
+    background: #16a34a;
+    color: #fff;
+    border: 2px solid #16a34a;
+}
+
+.btn-phone {
+    background: #0875e1;
+    color: #fff;
+    border: 2px solid #0875e1;
+}
+
+.vehicle-lower-grid {
+    display: grid;
+    grid-template-columns: 410px minmax(0, 1fr);
+    gap: 14px;
+    margin-top: 14px;
+    align-items: start;
 }
 
 .vehicle-card {
@@ -197,366 +239,224 @@ body {
 }
 
 .vehicle-card h2 {
-    margin: 0 0 12px;
-    font-size: 18px;
+    margin: 0 0 13px;
+    font-size: 19px;
     color: #0f172a;
     font-weight: 900;
 }
 
-.vehicle-details-list {
+.details-table {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    column-gap: 22px;
-    row-gap: 2px;
-    align-content: start;
+    grid-template-columns: 1fr;
 }
 
-.vehicle-detail-line {
+.detail-row {
     display: flex;
     justify-content: space-between;
-    gap: 10px;
-    padding: 5px 0;
-    border-bottom: 1px solid #edf1f7;
-}
-
-.vehicle-detail-line span {
-    color: #64748b;
-}
-
-.vehicle-detail-line strong {
-    color: #0f172a;
-}
-
-.vehicle-contact-card h2 {
-    margin: 0;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #dbe3ec;
-    font-size: 18px;
-    font-weight: 900;
-    color: #0f172a;
-}
-
-.vehicle-contact-description {
-    flex: 1;
-    padding: 12px 0;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #1f2937;
-}
-
-.vehicle-contact-buttons-bottom {
-    margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid #dbe3ec;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.vehicle-phone-btn,
-.vehicle-whatsapp-btn {
-    width: 100%;
-    height: 48px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 900;
-    display: flex;
     align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    padding: 0 10px;
-    font-size: 16px;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #edf2f7;
 }
 
-.vehicle-whatsapp-btn {
-    border: 2px solid #22c55e;
-    color: #16a34a;
-    background: #fff;
+.detail-row:last-child {
+    border-bottom: 0;
 }
 
-.vehicle-phone-btn {
-    background: #0875e1;
-    color: #fff;
-    border: 2px solid #0875e1;
-}
-
-/* ===== אבזור ===== */
-
-.vehicle-features-strip {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 14px 20px;
-    margin: 0;
-    border-radius: 0;
-}
-
-.vehicle-features-strip span {
-    background: #f1f5f9;
-    border-radius: 999px;
-    padding: 7px 13px;
+.detail-row span {
+    color: #64748b;
     font-size: 14px;
     font-weight: 700;
-    color: #0f172a;
 }
 
-.vehicle-description-card {
-    margin: 0;
-    font-size: 17px;
-    line-height: 1.9;
-    color: #1e293b;
-    border-radius: 0;
+.detail-row strong {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 900;
+    text-align: left;
 }
 
-.vehicle-similar-card {
-    margin: 0;
-    border-radius: 0 0 18px 18px;
+.description-text {
+    color: #1f2937;
+    font-size: 15px;
+    line-height: 1.75;
+    min-height: 90px;
 }
 
-/* ===== רכיבים ישנים שנשארו לשימוש עתידי ===== */
-
-.vehicle-action-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    margin: 0;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
+.features-title {
+    margin-top: 20px !important;
+    padding-top: 16px;
+    border-top: 1px solid #edf2f7;
 }
 
-.vehicle-features-card,
-.vehicle-seller-card {
-    height: 100%;
-}
-
-.vehicle-features-card {
-    display: flex;
-    flex-direction: column;
-}
-
-.vehicle-features-list {
+.features-list {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    align-content: flex-start;
 }
 
-.vehicle-features-list span {
+.features-list span {
     background: #f1f5f9;
+    border: 1px solid #e1e8f0;
     color: #0f172a;
-    padding: 10px 17px;
     border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 13px;
     font-weight: 800;
-}
-
-.vehicle-seller-card {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.seller-avatar {
-    width: 82px;
-    height: 82px;
-    background: #eef2f7;
-    border-radius: 50%;
-    margin: 0 auto 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-}
-
-.seller-name {
-    font-size: 22px;
-    font-weight: 900;
-    color: #0f172a;
-}
-
-.seller-location {
-    color: #64748b;
-    margin: 6px 0 20px;
-}
-
-.seller-buttons {
-    display: grid;
-    gap: 10px;
-    margin: 0;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-.seller-note {
-    color: #64748b;
-    font-size: 14px;
-    border-top: 1px solid #edf1f7;
-    padding-top: 14px;
-}
-
-.seller-stats {
-    display: grid;
-    gap: 12px;
-    margin: 20px 0;
-    text-align: right;
-}
-
-.seller-stats div {
-    background: #f8fafc;
-    border: 1px solid #e1e7ef;
-    border-radius: 12px;
-    padding: 12px 14px;
-}
-
-.seller-stats strong {
-    display: block;
-    color: #0f172a;
-    font-size: 15px;
-    margin-bottom: 4px;
-}
-
-.seller-stats span {
-    color: #64748b;
-    font-size: 14px;
-}
-
-.seller-all-ads-btn {
-    height: 46px;
-    border-radius: 12px;
-    background: #f1f5f9;
-    color: #0f172a;
-    text-decoration: none;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.similar-title-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0 0 20px;
-}
-
-.similar-title-row h2 {
-    margin: 0;
-}
-
-.similar-title-row a {
-    color: #0875e1;
-    font-weight: 800;
-    text-decoration: none;
-}
-
-.similar-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
-}
-
-.similar-item {
-    border: 1px solid #e1e7ef;
-    border-radius: 14px;
-    overflow: hidden;
-    background: #fff;
-    text-decoration: none;
-    color: inherit;
-}
-
-.similar-item img,
-.similar-no-img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    background: #eef2f7;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #64748b;
-}
-
-.similar-body {
-    padding: 14px;
-    display: grid;
-    gap: 7px;
-}
-
-.similar-body strong {
-    color: #0f172a;
-}
-
-.similar-body span {
-    color: #0875e1;
-    font-weight: 900;
-    font-size: 18px;
-}
-
-.similar-body small {
-    color: #64748b;
 }
 
 .vehicle-empty {
     color: #64748b;
+    font-weight: 700;
 }
 
-/* ביטול רווחים חיצוניים בין כל בלוקי הדף */
-.vehicle-view>* {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+.vehicle-not-found {
+    background: #fff;
+    border: 1px solid #dde5ef;
+    border-radius: 14px;
+    padding: 35px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 900;
 }
 
-/* ===== מובייל ===== */
+/* Lightbox */
 
-@media (max-width: 1050px) {
-    .vehicle-hero-card {
+.vehicle-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(2, 6, 23, .88);
+    direction: ltr;
+}
+
+.vehicle-lightbox.open {
+    display: flex;
+}
+
+.vehicle-lightbox img {
+    max-width: 92vw;
+    max-height: 86vh;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.lightbox-close,
+.lightbox-prev,
+.lightbox-next {
+    position: absolute;
+    border: 0;
+    background: rgba(255, 255, 255, .95);
+    color: #0f172a;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.lightbox-close {
+    top: 22px;
+    right: 22px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    font-size: 32px;
+}
+
+.lightbox-prev,
+.lightbox-next {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 66px;
+    border-radius: 999px;
+    font-size: 42px;
+}
+
+.lightbox-prev {
+    left: 26px;
+}
+
+.lightbox-next {
+    right: 26px;
+}
+
+.lightbox-counter {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, .95);
+    color: #0f172a;
+    border-radius: 999px;
+    padding: 7px 15px;
+    font-weight: 900;
+}
+
+/* מובייל */
+
+@media (max-width: 980px) {
+
+    .vehicle-ad-shell,
+    .vehicle-lower-grid {
         grid-template-columns: 1fr;
     }
 
-    .vehicle-summary {
-        border-right: 0;
-        border-top: 1px solid #e1e7ef;
+    .vehicle-main-photo {
+        height: 330px;
     }
 
-    .vehicle-main-grid {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-
-    .vehicle-details-card,
-    .vehicle-contact-card {
-        border-radius: 0;
-        border: 1px solid #e1e7ef;
-    }
-
-    .similar-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .vehicle-side-box {
+        padding: 16px;
     }
 }
 
 @media (max-width: 620px) {
-    .vehicle-view {
-        padding: 0;
+    .vehicle-page {
+        padding: 0 0 24px;
     }
 
-    .vehicle-summary h1 {
-        font-size: 26px;
+    .vehicle-gallery-box,
+    .vehicle-side-box,
+    .vehicle-card {
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+    }
+
+    .vehicle-ad-shell,
+    .vehicle-lower-grid {
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .vehicle-main-photo {
+        height: 260px;
+    }
+
+    .vehicle-headline h1 {
+        font-size: 23px;
     }
 
     .vehicle-price {
-        font-size: 38px;
+        font-size: 28px;
     }
 
-    .vehicle-action-row,
-    .vehicle-details-list,
-    .similar-grid {
+    .top-detail-grid {
         grid-template-columns: 1fr;
     }
 
-    .vehicle-main-image,
-    .vehicle-placeholder {
-        height: 240px;
+    .vehicle-card {
+        padding: 14px;
+    }
+
+    .vehicle-thumbs {
+        grid-auto-columns: 78px;
+    }
+
+    .vehicle-thumbs img {
+        width: 78px;
+        height: 56px;
     }
 }
